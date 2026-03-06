@@ -54,16 +54,40 @@
 
      ;; --- Accordion Section ---
      [:div {:class "max-w-2xl mx-auto"}
+(gs/accordion
+  {:type :single
+   :default-value :item-2
+   :collapsible? true}
+  (fn [{:keys [id title body]}]
+    {:value "foo"
+     :title title
+     :content body})
+  (for [a (range 1 3) b (range 3 5)]
+    {:title a :body b})
+
+  )
+(gs/accordion
+  {:type :single
+   :default-value :item-2
+   :collapsible? true}
+  (fn [{:keys [id title body]}]
+    {:value id
+     :title title
+     :content body})
+  [{:id :item-1 :title "One" :body [:p "A"]}
+   {:id :item-2 :title "Two" :body [:p "B"]}])
       [:h2 {:class "text-2xl font-semibold mb-6 text-center"} "Frequently Asked Questions"]
       (gs/accordion
-       {:items [{:title "How does the layout work?"
-                 :content "We use a combination of a max-width container in ui/page and a CSS grid here in the app function."
-                 :open? true}
-                {:title "Are these native elements?"
-                 :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."
-                 :open? true}
-                {:title "Can I use short-form maps?"
-                 :content "Absolutely. Every component here was generated using the map-based 'Short Form' for cleaner code."}]})]]))
+        {:items [{:title "How does the layout work?"
+                  :content "We use a combination of a max-width container in ui/page and a CSS grid here in the app function."
+                  :open? true}
+                 {:title "Are these native elements?"
+                  :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."
+                  :open? true}
+                 {:title "Can I use short-form maps?"
+                  :content "Absolutely. Every component here was generated using the map-based 'Short Form' for cleaner code."}]})]
+     ]))
+
 
 
 (defn set-foo [{:keys [session params] :as ctx}]
