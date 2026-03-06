@@ -55,24 +55,30 @@
 
             ;; --- Accordion Section ---
             [:div {:class "max-w-2xl mx-auto"}
-             [:.h1 "Single collapsible from list"]
+             [:.h1 "Single not collapsible from list"]
              (accordion
                {:type :single
-                :collapsible? true}
+                :default-value 2
+                :collapsible? false}
                (fn [{:keys [id title body]}]
-                 {:value "foo"
+                 {:value id
                   :title title
                   :content body})
-               (for [a ["fuck" "me" "sideways"] b ["jerk" "ass" "bitch"]]
-                 {:title a :body b})
+               (map-indexed
+                 (fn [i [title body]]
+                   {:id (inc i)
+                    :title title
+                    :body body})
+                 [["fuck" "jerk"]
+                  ["me" "ass"]
+                  ["sideways" "bitch"]]))
 
-               )
 
-             [:.h1 "Multiple with default"]
+             [:.h1 "Multiple with default collapsible "]
              (accordion
-               {:type :single
+               {:type :multiple
                 :collapsible? false
-                :default-value :item-2
+                :default-values [:item-1 :item-2]
                 }
                (fn [{:keys [id title body]}]
                  {:value id
