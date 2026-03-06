@@ -195,45 +195,65 @@
           children (if (map? (first args)) children args)]
       (el :section {:class class} attrs children))))
 
-(defn accordion-trigger [& args]
+(defn accordion-trigger
+  "Accordion trigger: emits <summary> with a hover effect and pointer cursor."
+  [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))]
-      (el :summary {:class class} attrs (nodes (:text props))))
+      (el :summary
+          {:class (class-names "cursor-pointer font-medium p-4 hover:bg-gray-50 list-none flex justify-between items-center" class)}
+          attrs
+          (nodes (:text props))))
     (let [[opts & children] args
           opts (if (map? opts) opts {})
           {:keys [class attrs]} (split-opts opts)
           children (if (map? (first args)) children args)]
-      (el :summary {:class class} attrs children))))
+      (el :summary
+          {:class (class-names "cursor-pointer font-medium p-4 hover:bg-gray-50 list-none flex justify-between items-center" class)}
+          attrs
+          children))))
 
-(defn accordion-item [& args]
+(defn accordion-item
+  "Accordion item: Adds a border and overflow control."
+  [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))
           {:keys [open? title content]} props]
-      (el :details {:class class :open (when open? true)} attrs
+      (el :details
+          {:class (class-names "border-b last:border-b-0 group" class)
+           :open (when open? true)}
+          attrs
           [(accordion-trigger {} title)
-           (apply accordion-content {} (nodes content))]))
+           (apply accordion-content {:class "p-4 pt-0 text-gray-600"} (nodes content))]))
     (let [[opts & children] args
           opts (if (map? opts) opts {})
           {:keys [props class attrs]} (split-opts opts)
           children (if (map? (first args)) children args)]
-      (el :details {:class class :open (when (:open? props) true)} attrs children))))
+      (el :details
+          {:class (class-names "border-b last:border-b-0 group" class)
+           :open (when (:open? props) true)}
+          attrs
+          children))))
 
-(defn accordion [& args]
+(defn accordion
+  "The main Accordion wrapper: gives it a rounded border 'box' look."
+  [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))
           items (:items props)]
-      (el :div {:class class} attrs
-          (for [{:keys [title content open? item-attrs trigger-attrs content-attrs]} items]
-            (accordion-item
-             {:open? open? :attrs item-attrs}
-             (accordion-trigger {:attrs trigger-attrs} title)
-             (apply accordion-content {:attrs content-attrs} (nodes content))))))
+      (el :div
+          {:class (class-names "border rounded-lg bg-white overflow-hidden shadow-sm" class)}
+          attrs
+          (for [item items]
+            (accordion-item item))))
     (let [[opts & children] args
           opts (if (map? opts) opts {})
           {:keys [class attrs]} (split-opts opts)
           children (if (map? (first args)) children args)]
-      (el :div {:class class} attrs children))))
-
+      (el :div
+          {:class (class-names "border rounded-lg bg-white overflow-hidden shadow-sm" class)}
+          attrs
+          children))))
 
 ;; ---------------------------------------------------------------------------
 ;; Button Component

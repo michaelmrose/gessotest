@@ -60,30 +60,10 @@
                  :content "We use a combination of a max-width container in ui/page and a CSS grid here in the app function."
                  :open? true}
                 {:title "Are these native elements?"
-                 :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."}
+                 :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."
+                 :open? true}
                 {:title "Can I use short-form maps?"
                  :content "Absolutely. Every component here was generated using the map-based 'Short Form' for cleaner code."}]})]]))
-
-#_(defn app [ctx]
-  (ui/page ctx
-    ;; A grid to display cards side-by-side on your large monitor
-    [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"}
-
-     ;; Card 1
-     (gs/card
-      {:title "User Profile"
-       :content [:p "Because this is in a grid inside the container, it won't stretch!"]
-       :footer (gs/button {:variant :primary :text "Edit Profile"})})
-
-     ;; Card 2
-     (gs/card
-      {:title "Settings"
-       :content [:p "Another perfectly sized Basecoat card."]
-       :footer (gs/button {:variant :outline :text "Cancel"})})]
-
-    ))
-
-
 
 
 (defn set-foo [{:keys [session params] :as ctx}]
