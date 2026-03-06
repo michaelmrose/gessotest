@@ -9,84 +9,90 @@
    [ring.websocket :as ws]
    [rum.core :as rum]
    [tick.core :as tick]
-   [gessotest.gesso :as gs]
+   [gessotest.gesso :as gs :refer [card button] ]
+   [gessotest.accordion :refer :all]
    )
 
   )
 
 (defn app [ctx]
   (ui/page ctx
-    [:div {:class "space-y-12"}
+           [:div {:class "space-y-12"}
 
-     ;; --- Header Section ---
-     [:header {:class "text-center py-4"}
-      [:h1 {:class "text-4xl font-bold tracking-tight"} "Gesso Component Library"]
-      [:p {:class "text-gray-600 mt-2"} "Basecoat structures powered by Tailwind layouts."]]
+            ;; --- Header Section ---
+            [:header {:class "text-center py-4"}
+             [:h1 {:class "text-4xl font-bold tracking-tight"} "Gesso Component Library"]
+             [:p {:class "text-gray-600 mt-2"} "Basecoat structures powered by Tailwind layouts."]]
 
-     ;; --- Cards Grid ---
-     ;; The grid prevents cards from stretching on your 28" screen.
-     [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"}
+            ;; --- Cards Grid ---
+            ;; The grid prevents cards from stretching on your 28" screen.
+            [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"}
 
-      ;; Card 1: Standard Profile
-      (gs/card
-       {:title "User Profile"
-        :description "Managing your public presence."
-        :content [:p "Because this is in a grid inside the container, it won't stretch!"]
-        :footer (gs/button {:variant :primary :text "Edit Profile"})})
+             ;; Card 1: Standard Profile
+             (card
+               {:title "User Profile"
+                :description "Managing your public presence."
+                :content [:p "Because this is in a grid inside the container, it won't stretch!"]
+                :footer (gs/button {:variant :primary :text "Edit Profile"})})
 
-      ;; Card 2: Settings / Actions
-      ;; FIXED: Removed the outer () from the footer vector
-      (gs/card
-       {:title "Settings"
-        :content [:p "Another perfectly sized Basecoat card using Tailwind's max-w-md."]
-        :footer [:div {:class "flex gap-2"}
-                 (gs/button {:variant :outline :text "Cancel"})
-                 (gs/button {:variant :secondary :text "Save"})]})
+             ;; Card 2: Settings / Actions
+             ;; FIXED: Removed the outer () from the footer vector
+             (card
+               {:title "Settings"
+                :content [:p "Another perfectly sized Basecoat card using Tailwind's max-w-md."]
+                :footer [:div {:class "flex gap-2"}
+                         (button {:variant :outline :text "Cancel"})
+                         (button {:variant :secondary :text "Save"})]})
 
-      ;; Card 3: Button Gallery
-      (gs/card
-       {:title "Button Variants"
-        :content [:div {:class "grid grid-cols-2 gap-2"}
-                  (gs/button {:variant :ghost :text "Ghost"})
-                  (gs/button {:variant :destructive :text "Danger"})
-                  (gs/button {:variant :link :text "Link Style"})
-                  (gs/button {:variant :outline :size :sm :text "Small Outline"})]})]
+             ;; Card 3: Button Gallery
+             (card
+               {:title "Button Variants"
+                :content [:div {:class "grid grid-cols-2 gap-2"}
+                          (button {:variant :ghost :text "Ghost"})
+                          (button {:variant :destructive :text "Danger"})
+                          (button {:variant :link :text "Link Style"})
+                          (button {:variant :outline :size :sm :text "Small Outline"})]})]
 
-     ;; --- Accordion Section ---
-     [:div {:class "max-w-2xl mx-auto"}
-(gs/accordion
-  {:type :single
-   :default-value :item-2
-   :collapsible? true}
-  (fn [{:keys [id title body]}]
-    {:value "foo"
-     :title title
-     :content body})
-  (for [a (range 1 3) b (range 3 5)]
-    {:title a :body b})
+            ;; --- Accordion Section ---
+            [:div {:class "max-w-2xl mx-auto"}
+             [:.h1 "Single collapsible from list"]
+             (accordion
+               {:type :single
+                :collapsible? true}
+               (fn [{:keys [id title body]}]
+                 {:value "foo"
+                  :title title
+                  :content body})
+               (for [a (range 1 3) b (range 3 5)]
+                 {:title a :body b})
 
-  )
-(gs/accordion
-  {:type :single
-   :default-value :item-2
-   :collapsible? true}
-  (fn [{:keys [id title body]}]
-    {:value id
-     :title title
-     :content body})
-  [{:id :item-1 :title "One" :body [:p "A"]}
-   {:id :item-2 :title "Two" :body [:p "B"]}])
-      [:h2 {:class "text-2xl font-semibold mb-6 text-center"} "Frequently Asked Questions"]
-      (gs/accordion
-        {:items [{:title "How does the layout work?"
-                  :content "We use a combination of a max-width container in ui/page and a CSS grid here in the app function."
-                  :open? true}
-                 {:title "Are these native elements?"
-                  :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."
-                  :open? true}
-                 {:title "Can I use short-form maps?"
-                  :content "Absolutely. Every component here was generated using the map-based 'Short Form' for cleaner code."}]})]
-     ]))
+               )
+
+             [:.h1 "Multiple with default"]
+             (accordion
+               {:type :single
+                :collapsible? false
+                :default-value :item-2
+                }
+               (fn [{:keys [id title body]}]
+                 {:value id
+                  :title title
+                  :content body})
+               [{:id :item-1 :title "One" :body [:p "A"]}
+                {:id :item-2 :title "Two" :body [:p "B"]}])
+             [:h2 {:class "text-2xl font-semibold mb-6 text-center"} "Frequently Asked Questions"]
+
+             [:.h1 "Multiple simple"]
+             (accordion
+               {:items [{:title "How does the layout work?"
+                         :content "We use a combination of a max-width container in ui/page and a CSS grid here in the app function."
+                         :open? true}
+                        {:title "Are these native elements?"
+                         :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."
+                         :open? true}
+                        {:title "Can I use short-form maps?"
+                         :content "Absolutely. Every component here was generated using the map-based 'Short Form' for cleaner code."}]})]
+            ]))
 
 
 
@@ -197,7 +203,6 @@
 (def module
   {:static {"/about/" about-page}
    :routes ["/app" {:middleware [mid/wrap-signed-in]}
-            ["/demo" {:get demo}]
             ["" {:get app}]
             ["/set-foo" {:post set-foo}]
             ["/set-bar" {:post set-bar}]
