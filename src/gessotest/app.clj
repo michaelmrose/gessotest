@@ -8,33 +8,111 @@
    [gessotest.ui :as ui]
    [ring.websocket :as ws]
    [rum.core :as rum]
-   [tick.core :as tick]))
+   [tick.core :as tick]
+   [gessotest.gesso :as gs]
+   )
+
+  )
+
+(defn app [{:keys [biff/conn session] :as ctx}]
+  (let [[{:user/keys [email foo bar]}]
+        (biffx/q conn
+                 {:select [:user/email :user/foo :user/bar]
+                  :from :user
+                  :where [:= :xt/id (:uid session)]})]
+    (ui/page
+     {}
+     [:div
+      [:div
+       "Signed in as " email ". "
+       (biff/form
+        {:action "/auth/signout"
+         :class "inline"}
+        [:button.text-blue-500.hover:text-blue-800 {:type "submit"}
+         "Sign out"])
+       "."]
+
+      ;; --- gesso demo ---
+      [:div {:class "mt-6 space-y-6"}
+       (gs/card
+         {
+         :class "max-w-sm mx-auto shadow-sm"
+         :title "gesso demo: Card (shorter form)"
+         :description "This card is built from a single map."
+         :content
+         [[:p "If Basecoat is loading, this should look like a Basecoat card."]
+          [:p "Buttons below are Basecoat button variants."]]
+         :footer
+         [:div {:class "flex flex-col items-center gap-2"}
+          [:button {:type "button" :class "btn-primary w-full"} "Primary"]
+          [:button {:type "button" :class "btn-secondary w-full"} "Secondary"]
+          [:button {:type "button" :class "btn-outline w-full"} "Outline"]
+          [:button {:type "button" :class "btn-ghost w-full"} "Ghost"]
+          [:button {:type "button" :class "btn-link w-full"} "Link"]
+          [:button {:type "button" :class "btn-destructive w-full"} "Destructive"]]})
+
+       (gs/card
+        ;; {:class "w-full max-w-sm mx-auto"}
+        (gs/card-header {}
+          (gs/card-title {} "Login to your account")
+          (gs/card-description {} "Enter your details below to login to your account"))
+        (gs/card-content {}
+          [:form {:class "form grid gap-6"}
+           [:div {:class "grid gap-2"}
+            [:label {:for "demo-card-form-email"} "Email"]
+            [:input {:type "email" :id "demo-card-form-email"}]]
+           [:div {:class "grid gap-2"}
+            [:div {:class "flex items-center gap-2"}
+             [:label {:for "demo-card-form-password"} "Password"]
+             [:a {:href "#"
+                  :class "ml-auto inline-block text-sm underline-offset-4 hover:underline"}
+              "Forgot your password?"]]
+            [:input {:type "password" :id "demo-card-form-password"}]]])
+        (gs/card-footer {:class "flex flex-col items-center gap-2"}
+          [:button {:type "button" :class "btn w-full"} "Login"]
+          [:button {:type "button" :class "btn-outline w-full"} "Login with Google"]
+          [:p {:class "mt-4 text-center text-sm"}
+           "Don't have an account? "
+           [:a {:href "#" :class "underline-offset-4 hover:underline"} "Sign up"]]))
+
+       (gs/card
+        {:class "w-full max-w-sm mx-auto"
+         :content
+         (gs/accordion
+          {:items [{:title "Accordion item 1"
+                    :content [[:p "This is the first accordion item's content."]
+                              [:p "It uses <details>/<summary> Basecoat Collapsible styling."]]
+                    :open? true}
+                   {:title "Accordion item 2"
+                    :content [:p "Second item's content."]}]})})]
+      ;; --- end gesso demo ---
+      ])))
 
 (defn set-foo [{:keys [session params] :as ctx}]
   (biffx/submit-tx ctx
-    [[:patch-docs :user {:xt/id (:uid session)
-                         :user/foo (:foo params)}]])
+                   [[:patch-docs :user {:xt/id (:uid session)
+                                        :user/foo (:foo params)}]])
   {:status 303
    :headers {"location" "/app"}})
 
 (defn bar-form [{:keys [value]}]
   (biff/form
-   {:hx-post "/app/set-bar"
-    :hx-swap "outerHTML"}
-   [:label.block {:for "bar"} "Bar: "
-    [:span.font-mono (pr-str value)]]
-   [:.h-1]
-   [:.flex
-    [:input.w-full#bar {:type "text" :name "bar" :value value}]
-    [:.w-3]
-    [:button.btn {:type "submit"} "Update"]]
-   [:.h-1]
-   [:.text-sm.text-gray-600
-    "This demonstrates updating a value with HTMX."]))
+    {:hx-post "/app/set-bar"
+     :hx-swap "outerHTML"}
+    [:label.block {:for "bar"} "Bar: "
+     [:span.font-mono (pr-str value)]]
+    [:.h-1]
+    [:.flex
+     [:input.w-full#bar {:type "text" :name "bar" :value value}]
+     [:.w-3]
+     [:button.btn {:type "submit"} "Update"]]
+    [:.h-1]
+    [:.text-sm.text-gray-600
+     "This demonstrates updating a value with HTMX."]))
 
 (defn set-bar [{:keys [session params] :as ctx}]
   (time (biffx/submit-tx ctx
-    [[:patch-docs :user {:xt/id (:uid session) :user/bar (:bar params)}]]))
+                         [[:patch-docs :user {:xt/id (:uid session) :user/bar (:bar params)}]]))
   (biff/render (bar-form {:value (:bar params)})))
 
 (defn message [{:msg/keys [content sent-at]}]
@@ -45,18 +123,18 @@
 (defn notify-clients [{:keys [gessotest/chat-clients]} record]
   (when (= "msg" (:biff.xtdb/table record))
     (let [html (rum/render-static-markup
-                [:div#messages {:hx-swap-oob "afterbegin"}
-                 (message record)])]
+                 [:div#messages {:hx-swap-oob "afterbegin"}
+                  (message record)])]
       (doseq [ws @chat-clients]
         (ws/send ws html)))))
 
 (defn send-message [{:keys [session] :as ctx} {:keys [text]}]
   (let [{:keys [content]} (cheshire/parse-string text true)]
     (biffx/submit-tx ctx
-      [[:put-docs :msg {:xt/id (random-uuid)
-                        :msg/user (:uid session)
-                        :msg/content content
-                        :msg/sent-at (tick/zoned-date-time)}]])))
+                     [[:put-docs :msg {:xt/id (random-uuid)
+                                       :msg/user (:uid session)
+                                       :msg/content content
+                                       :msg/sent-at (tick/zoned-date-time)}]])))
 
 (defn chat [{:keys [biff/conn]}]
   (let [messages (biffx/q conn
@@ -84,39 +162,7 @@
      [:div#messages
       (map message (sort-by :msg/sent-at #(compare %2 %1) messages))]]))
 
-(defn app [{:keys [biff/conn session] :as ctx}]
-  (let [[{:user/keys [email foo bar]}] (biffx/q conn
-                                                {:select [:user/email
-                                                          :user/foo
-                                                          :user/bar]
-                                                 :from :user
-                                                 :where [:= :xt/id (:uid session)]})]
-    (ui/page
-     {}
-     [:div "Signed in as " email ". "
-      (biff/form
-       {:action "/auth/signout"
-        :class "inline"}
-       [:button.text-blue-500.hover:text-blue-800 {:type "submit"}
-        "Sign out"])
-      "."]
-     [:.h-6]
-     (biff/form
-      {:action "/app/set-foo"}
-      [:label.block {:for "foo"} "Foo: "
-       [:span.font-mono (pr-str foo)]]
-      [:.h-1]
-      [:.flex
-       [:input.w-full#foo {:type "text" :name "foo" :value foo}]
-       [:.w-3]
-       [:button.btn {:type "submit"} "Update"]]
-      [:.h-1]
-      [:.text-sm.text-gray-600
-       "This demonstrates updating a value with a plain old form."])
-     [:.h-6]
-     (bar-form {:value bar})
-     [:.h-6]
-     (chat ctx))))
+
 
 (defn ws-handler [{:keys [gessotest/chat-clients] :as ctx}]
   {:status 101
@@ -131,9 +177,9 @@
 
 (def about-page
   (ui/page
-   {:base/title (str "About " settings/app-name)}
-   [:p "This app was made with "
-    [:a.link {:href "https://biffweb.com"} "Biff"] "."]))
+    {:base/title (str "About " settings/app-name)}
+    [:p "This app was made with "
+     [:a.link {:href "https://biffweb.com"} "Biff"] "."]))
 
 (defn echo [{:keys [params]}]
   {:status 200

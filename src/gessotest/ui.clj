@@ -24,29 +24,42 @@
                      :icon "/img/glider.png"
                      :description (str settings/app-name " Description")
                      :image "https://clojure.org/images/clojure-logo-120b.png"})
-       (update :base/head (fn [head]
-                            (concat [[:link {:rel "stylesheet" :href (static-path "/css/main.css")}]
-                                     [:script {:src (static-path "/js/main.js")}]
-                                     [:script {:src "https://unpkg.com/htmx.org@2.0.7"}]
-                                     [:script {:src "https://unpkg.com/htmx-ext-ws@2.0.2/ws.js"}]
-                                     [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
-                                     (when recaptcha
-                                       [:script {:src "https://www.google.com/recaptcha/api.js"
-                                                 :async "async" :defer "defer"}])]
-                                    head))))
+       (update :base/head
+               (fn [head]
+                 (concat
+                  [;; Basecoat (pinned)
+                   [:link {:rel "stylesheet"
+                           :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
+
+                   [:link {:rel "stylesheet"
+                           :href (static-path "/css/main.css")}]
+                   [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
+                             :defer true}]
+
+                   [:script {:src (static-path "/js/main.js")
+                             :defer true}]
+
+                   ;; HTMX + extensions
+                   [:script {:src "https://unpkg.com/htmx.org@2.0.7"}]
+                   [:script {:src "https://unpkg.com/htmx-ext-ws@2.0.2/ws.js"}]
+                   [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
+
+                   ;; Optional: recaptcha
+                   (when recaptcha
+                     [:script {:src "https://www.google.com/recaptcha/api.js"
+                               :async "async"
+                               :defer "defer"}])]
+                  head))))
    body))
 
 (defn page [ctx & body]
-  (base
-   ctx
-   [:.flex-grow]
-   [:.p-3.mx-auto.max-w-screen-sm.w-full
-    (when (bound? #'csrf/*anti-forgery-token*)
-      {:hx-headers (cheshire/generate-string
-                    {:x-csrf-token csrf/*anti-forgery-token*})})
-    body]
-   [:.flex-grow]
-   [:.flex-grow]))
+  (base ctx
+        [:.flex-grow]
+        [:.p-3.mx-auto.max-w-screen-sm.w-full
+                       (when (bound?
+                               #'csrf/*anti-forgery-token*) {:hx-headers (cheshire/generate-string {:x-csrf-token csrf/*anti-forgery-token*})}) body]
+        [:.flex-grow]
+        [:.flex-grow]))
 
 (defn on-error [{:keys [status ex] :as ctx}]
   {:status status
