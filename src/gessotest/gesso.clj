@@ -12,18 +12,20 @@
 
 (defn class-names
   "Join class values into a single class string.
-  Accepts strings, keywords, nils, and nested sequential values."
+  Accepts strings, keywords, nils, and nested sequential values.
+  Splits strings and removes duplicates to prevent doubled-up classes."
   [& xs]
   (->> xs
        flatten
        (remove nil?)
        (mapcat (fn [x]
                  (cond
-                   (string? x) [x]
+                   (string? x) (str/split x #"\s+")
                    (keyword? x) [(name x)]
                    (sequential? x) x
                    :else [(str x)])))
        (remove str/blank?)
+       distinct
        (str/join " ")))
 
 (defn merge-attrs
@@ -34,7 +36,7 @@
      (let [m (or m {})]
        (-> acc
            (merge (dissoc m :class))
-           (update :class class-names (:class acc) (:class m)))))
+           (assoc :class (class-names (:class acc) (:class m))))))
    {}
    maps))
 
@@ -61,12 +63,7 @@
          (or (keyword? t) (symbol? t)))))
 
 (defn- nodes
-  "Normalize a content value into a seq of nodes.
-  - nil => []
-  - hiccup element vector ([:div ...]) => [that-vector]
-  - vector of nodes ([[:p ...] [:p ...]]) => itself
-  - sequential (list/seq from for) => itself
-  - scalar/string => [scalar]"
+  "Normalize a content value into a seq of nodes."
   [x]
   (cond
     (nil? x) []
@@ -75,30 +72,29 @@
     (and (sequential? x) (not (string? x))) x
     :else [x]))
 
-
 (defn- el
   "Construct a Hiccup element with base attrs, user attrs, and children."
   [tag base-attrs attrs children]
-  (into [tag (merge-attrs base-attrs attrs)]
-        (normalize-children children)))
-
-
+  (let [merged-attrs (merge-attrs base-attrs attrs)
+        ;; Clean up empty class strings
+        final-attrs (if (str/blank? (:class merged-attrs))
+                      (dissoc merged-attrs :class)
+                      merged-attrs)]
+    (into [tag final-attrs] (normalize-children children))))
 
 (defn- split-opts
-  "Split an opts map into {:props ... :class ... :attrs ...}.
-
-  Conventions:
-  - :class is extra classes for the root element
-  - :attrs is raw hiccup attrs for the root element
-  - everything else in opts is treated as component props"
+  "Split an opts map into {:props ... :class ... :attrs ...}."
   [opts]
   {:props (dissoc opts :class :attrs)
    :class (:class opts)
    :attrs (:attrs opts)})
 
-(defn card-title
-  "Card title subcomponent: emits <h2>."
-  [& args]
+
+;; ---------------------------------------------------------------------------
+;; Card Subcomponents
+;; ---------------------------------------------------------------------------
+
+(defn card-title [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))]
       (el :h2 {:class class} attrs (nodes (:text props))))
@@ -108,9 +104,7 @@
           children (if (map? (first args)) children args)]
       (el :h2 {:class class} attrs children))))
 
-(defn card-description
-  "Card description subcomponent: emits <p>."
-  [& args]
+(defn card-description [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))]
       (el :p {:class class} attrs (nodes (:text props))))
@@ -120,15 +114,11 @@
           children (if (map? (first args)) children args)]
       (el :p {:class class} attrs children))))
 
-(defn card-header
-  "Card header subcomponent: emits <header>."
-  [& args]
+(defn card-header [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))
           {:keys [title description children]} props]
-      (el :header
-          {:class class}
-          attrs
+      (el :header {:class class} attrs
           [(when title (card-title {} title))
            (when description (card-description {} description))
            (nodes children)]))
@@ -138,10 +128,7 @@
           children (if (map? (first args)) children args)]
       (el :header {:class class} attrs children))))
 
-
-(defn card-content
-  "Card content subcomponent: emits <section>."
-  [& args]
+(defn card-content [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))]
       (el :section {:class class} attrs (nodes (:children props))))
@@ -151,9 +138,7 @@
           children (if (map? (first args)) children args)]
       (el :section {:class class} attrs children))))
 
-(defn card-footer
-  "Card footer subcomponent: emits <footer>."
-  [& args]
+(defn card-footer [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))]
       (el :footer {:class class} attrs (nodes (:children props))))
@@ -165,26 +150,15 @@
 
 
 ;; ---------------------------------------------------------------------------
-;; Card (Basecoat: .card with > header/section/footer)
-;; Source of truth: subcomponents.
-;; Short form: (card {:title ... :description ... :content ... :footer ...})
+;; Card Component
 ;; ---------------------------------------------------------------------------
-
 
 (defn card
   "Long form:
     (card {:class ... :attrs ...} children...)
 
   Short form (map-only):
-    (card {:class ... :attrs ...
-           :header <node>
-           :title <node>
-           :description <node>
-           :content <node|seq>
-           :footer <node|seq>})
-
-  If :header is supplied, it is used verbatim. Otherwise header is synthesized
-  from :title and :description."
+    (card {:class ... :attrs ... :header <node> :title <node> :description <node> :content <node|seq> :footer <node|seq>})"
   [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))
@@ -198,28 +172,20 @@
                          (apply card-content {} (nodes content)))
           footer-node (when (some? footer)
                         (apply card-footer {} (nodes footer)))]
-      (el :div
-          {:class (class-names "card" class)}
-          attrs
+      (el :div {:class (class-names "card" class)} attrs
           [header-node content-node footer-node]))
     (let [[opts & children] args
           opts (if (map? opts) opts {})
           {:keys [class attrs]} (split-opts opts)
           children (if (map? (first args)) children args)]
-      (el :div
-          {:class (class-names "card" class)}
-          attrs
-          children))))
-;; ---------------------------------------------------------------------------
-;; Accordion (Basecoat Collapsible uses native <details>/<summary>)
-;; Source of truth: accordion-item / accordion-trigger / accordion-content.
-;; Short form: (accordion {:items [...]})
-;; ---------------------------------------------------------------------------
+      (el :div {:class (class-names "card" class)} attrs children))))
 
 
-(defn accordion-content
-  "Accordion content: emits <section> (inside <details>)."
-  [& args]
+;; ---------------------------------------------------------------------------
+;; Accordion Components
+;; ---------------------------------------------------------------------------
+
+(defn accordion-content [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))]
       (el :section {:class class} attrs (nodes (:children props))))
@@ -229,68 +195,37 @@
           children (if (map? (first args)) children args)]
       (el :section {:class class} attrs children))))
 
-(defn accordion-trigger
-  "Accordion trigger: emits <summary>."
-  [& args]
+(defn accordion-trigger [& args]
   (if (only-map-arg? args)
-    (let [{:keys [props class attrs]} (split-opts (first args))
-          text (:text props)]
-      (el :summary {:class class} attrs (nodes text)))
+    (let [{:keys [props class attrs]} (split-opts (first args))]
+      (el :summary {:class class} attrs (nodes (:text props))))
     (let [[opts & children] args
           opts (if (map? opts) opts {})
           {:keys [class attrs]} (split-opts opts)
           children (if (map? (first args)) children args)]
       (el :summary {:class class} attrs children))))
 
-(defn accordion-item
-  "Accordion item: emits <details> (styled by Basecoat Collapsible).
-  Long form:
-    (accordion-item {:open? true :attrs {...}} (accordion-trigger ...) (accordion-content ...))
-
-  Short form (map-only):
-    (accordion-item {:open? ... :title ... :content ...})"
-  [& args]
+(defn accordion-item [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))
           {:keys [open? title content]} props]
-      (el :details
-          {:class class
-           :open (when open? true)}
-          attrs
+      (el :details {:class class :open (when open? true)} attrs
           [(accordion-trigger {} title)
            (apply accordion-content {} (nodes content))]))
     (let [[opts & children] args
           opts (if (map? opts) opts {})
           {:keys [props class attrs]} (split-opts opts)
-          open? (:open? props)
           children (if (map? (first args)) children args)]
-      (el :details
-          {:class class
-           :open (when open? true)}
-          attrs
-          children))))
+      (el :details {:class class :open (when (:open? props) true)} attrs children))))
 
-(defn accordion
-  "Long form:
-    (accordion {:class ... :attrs ...} accordion-items...)
-
-  Short form (map-only):
-    (accordion {:class ... :attrs ...
-                :items [{:title <node> :content <node|seq> :open? boolean
-                         :item-attrs {...} :trigger-attrs {...} :content-attrs {...}}
-                        ...]})
-
-  Note: Basecoat styles Collapsible via native details/summary selectors, so
-  this is intentionally minimal markup."
-  [& args]
+(defn accordion [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))
           items (:items props)]
       (el :div {:class class} attrs
           (for [{:keys [title content open? item-attrs trigger-attrs content-attrs]} items]
             (accordion-item
-             {:open? open?
-              :attrs item-attrs}
+             {:open? open? :attrs item-attrs}
              (accordion-trigger {:attrs trigger-attrs} title)
              (apply accordion-content {:attrs content-attrs} (nodes content))))))
     (let [[opts & children] args
@@ -299,10 +234,9 @@
           children (if (map? (first args)) children args)]
       (el :div {:class class} attrs children))))
 
+
 ;; ---------------------------------------------------------------------------
-;; Button (Basecoat: .btn*, compound classes by variant+size)
-;; Source of truth: button
-;; Short form: (button {:text ... :variant ... :size ... :attrs ... :class ...})
+;; Button Component
 ;; ---------------------------------------------------------------------------
 
 (def ^:private button-classes
@@ -360,14 +294,7 @@
     (button {:class ... :attrs ... :variant ... :size ...} children...)
 
   Short form (map-only):
-    (button {:class ... :attrs ...
-             :variant :primary|:secondary|:outline|:ghost|:link|:destructive|:default
-             :size :md|:sm|:lg|:icon|:sm-icon|:lg-icon
-             :text <node|scalar>})
-
-  Notes:
-  - defaults: :variant :default, :size :md
-  - always sets :type \"button\" unless you pass {:attrs {:type \"submit\"}}"
+    (button {:variant ... :size ... :text <node|scalar>})"
   [& args]
   (if (only-map-arg? args)
     (let [{:keys [props class attrs]} (split-opts (first args))
@@ -376,10 +303,7 @@
           size (or size :md)
           cls (get button-classes [variant size] "btn")
           attrs' (merge {:type "button"} attrs)]
-      (el :button
-          {:class (class-names cls class)}
-          attrs'
-          (nodes text)))
+      (el :button {:class (class-names cls class)} attrs' (nodes text)))
     (let [[maybe-opts & children] args
           opts (if (map? maybe-opts) maybe-opts {})
           {:keys [props class attrs]} (split-opts opts)
@@ -389,7 +313,4 @@
           cls (get button-classes [variant size] "btn")
           children (if (map? maybe-opts) children args)
           attrs' (merge {:type "button"} attrs)]
-      (el :button
-          {:class (class-names cls class)}
-          attrs'
-          children))))
+      (el :button {:class (class-names cls class)} attrs' children))))

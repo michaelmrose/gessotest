@@ -52,14 +52,38 @@
                   head))))
    body))
 
-(defn page [ctx & body]
+(ns gessotest.ui
+  (:require [gessotest.gesso :as gs]
+            ;; ... other requires ...
+            ))
+
+;; (Assume your existing `base` function is here)
+
+(defn container
+  "A reusable wrapper that prevents content from stretching across ultra-wide monitors.
+   Use this to wrap groups of components or entire pages."
+  [& children]
+  (into [:div {:class "w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"}]
+        children))
+
+(defn page
+  "The standard app layout shell.
+   Ensures the footer (if any) sticks to the bottom and the main content is centered."
+  [ctx & body]
   (base ctx
-        [:.flex-grow]
-        [:.p-3.mx-auto.max-w-screen-sm.w-full
-                       (when (bound?
-                               #'csrf/*anti-forgery-token*) {:hx-headers (cheshire/generate-string {:x-csrf-token csrf/*anti-forgery-token*})}) body]
-        [:.flex-grow]
-        [:.flex-grow]))
+        ;; The Outer App Shell (Flexbox to push footer down if page is short)
+        [:div {:class "min-h-screen flex flex-col bg-slate-50"}
+
+         ;; (Optional) Header/Navbar would go here
+         ;; [:header {:class "w-full bg-white shadow-sm border-b p-4"} "My App"]
+
+         ;; The Constrained Main Content Area
+         [:main {:class "flex-grow py-10"}
+          (apply container body)]
+
+         ;; (Optional) Footer would go here
+         ;; [:footer {:class "text-center p-4 text-sm text-gray-500"} "© 2026"]
+         ]))
 
 (defn on-error [{:keys [status ex] :as ctx}]
   {:status status

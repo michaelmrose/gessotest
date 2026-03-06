@@ -14,79 +14,77 @@
 
   )
 
-(defn app [{:keys [biff/conn session] :as ctx}]
-  (let [[{:user/keys [email foo bar]}]
-        (biffx/q conn
-                 {:select [:user/email :user/foo :user/bar]
-                  :from :user
-                  :where [:= :xt/id (:uid session)]})]
-    (ui/page
-     {}
-     [:div
-      [:div
-       "Signed in as " email ". "
-       (biff/form
-        {:action "/auth/signout"
-         :class "inline"}
-        [:button.text-blue-500.hover:text-blue-800 {:type "submit"}
-         "Sign out"])
-       "."]
+(defn app [ctx]
+  (ui/page ctx
+    [:div {:class "space-y-12"}
 
-      ;; --- gesso demo ---
-      [:div {:class "mt-6 space-y-6"}
-       (gs/card
-         {
-         :class "max-w-sm mx-auto shadow-sm"
-         :title "gesso demo: Card (shorter form)"
-         :description "This card is built from a single map."
-         :content
-         [[:p "If Basecoat is loading, this should look like a Basecoat card."]
-          [:p "Buttons below are Basecoat button variants."]]
-         :footer
-         [:div {:class "flex flex-col items-center gap-2"}
-          [:button {:type "button" :class "btn-primary w-full"} "Primary"]
-          [:button {:type "button" :class "btn-secondary w-full"} "Secondary"]
-          [:button {:type "button" :class "btn-outline w-full"} "Outline"]
-          [:button {:type "button" :class "btn-ghost w-full"} "Ghost"]
-          [:button {:type "button" :class "btn-link w-full"} "Link"]
-          [:button {:type "button" :class "btn-destructive w-full"} "Destructive"]]})
+     ;; --- Header Section ---
+     [:header {:class "text-center py-4"}
+      [:h1 {:class "text-4xl font-bold tracking-tight"} "Gesso Component Library"]
+      [:p {:class "text-gray-600 mt-2"} "Basecoat structures powered by Tailwind layouts."]]
 
-       (gs/card
-        ;; {:class "w-full max-w-sm mx-auto"}
-        (gs/card-header {}
-          (gs/card-title {} "Login to your account")
-          (gs/card-description {} "Enter your details below to login to your account"))
-        (gs/card-content {}
-          [:form {:class "form grid gap-6"}
-           [:div {:class "grid gap-2"}
-            [:label {:for "demo-card-form-email"} "Email"]
-            [:input {:type "email" :id "demo-card-form-email"}]]
-           [:div {:class "grid gap-2"}
-            [:div {:class "flex items-center gap-2"}
-             [:label {:for "demo-card-form-password"} "Password"]
-             [:a {:href "#"
-                  :class "ml-auto inline-block text-sm underline-offset-4 hover:underline"}
-              "Forgot your password?"]]
-            [:input {:type "password" :id "demo-card-form-password"}]]])
-        (gs/card-footer {:class "flex flex-col items-center gap-2"}
-          [:button {:type "button" :class "btn w-full"} "Login"]
-          [:button {:type "button" :class "btn-outline w-full"} "Login with Google"]
-          [:p {:class "mt-4 text-center text-sm"}
-           "Don't have an account? "
-           [:a {:href "#" :class "underline-offset-4 hover:underline"} "Sign up"]]))
+     ;; --- Cards Grid ---
+     ;; The grid prevents cards from stretching on your 28" screen.
+     [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"}
 
-       (gs/card
-        {:class "w-full max-w-sm mx-auto"
-         :content
-         (gs/accordion
-          {:items [{:title "Accordion item 1"
-                    :content [[:p "This is the first accordion item's content."]
-                              [:p "It uses <details>/<summary> Basecoat Collapsible styling."]]
-                    :open? true}
-                   {:title "Accordion item 2"
-                    :content [:p "Second item's content."]}]})})]
-      ;; --- end gesso demo ---
-      ])))
+      ;; Card 1: Standard Profile
+      (gs/card
+       {:title "User Profile"
+        :description "Managing your public presence."
+        :content [:p "Because this is in a grid inside the container, it won't stretch!"]
+        :footer (gs/button {:variant :primary :text "Edit Profile"})})
+
+      ;; Card 2: Settings / Actions
+      ;; FIXED: Removed the outer () from the footer vector
+      (gs/card
+       {:title "Settings"
+        :content [:p "Another perfectly sized Basecoat card using Tailwind's max-w-md."]
+        :footer [:div {:class "flex gap-2"}
+                 (gs/button {:variant :outline :text "Cancel"})
+                 (gs/button {:variant :secondary :text "Save"})]})
+
+      ;; Card 3: Button Gallery
+      (gs/card
+       {:title "Button Variants"
+        :content [:div {:class "grid grid-cols-2 gap-2"}
+                  (gs/button {:variant :ghost :text "Ghost"})
+                  (gs/button {:variant :destructive :text "Danger"})
+                  (gs/button {:variant :link :text "Link Style"})
+                  (gs/button {:variant :outline :size :sm :text "Small Outline"})]})]
+
+     ;; --- Accordion Section ---
+     [:div {:class "max-w-2xl mx-auto"}
+      [:h2 {:class "text-2xl font-semibold mb-6 text-center"} "Frequently Asked Questions"]
+      (gs/accordion
+       {:items [{:title "How does the layout work?"
+                 :content "We use a combination of a max-width container in ui/page and a CSS grid here in the app function."
+                 :open? true}
+                {:title "Are these native elements?"
+                 :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."}
+                {:title "Can I use short-form maps?"
+                 :content "Absolutely. Every component here was generated using the map-based 'Short Form' for cleaner code."}]})]]))
+
+#_(defn app [ctx]
+  (ui/page ctx
+    ;; A grid to display cards side-by-side on your large monitor
+    [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"}
+
+     ;; Card 1
+     (gs/card
+      {:title "User Profile"
+       :content [:p "Because this is in a grid inside the container, it won't stretch!"]
+       :footer (gs/button {:variant :primary :text "Edit Profile"})})
+
+     ;; Card 2
+     (gs/card
+      {:title "Settings"
+       :content [:p "Another perfectly sized Basecoat card."]
+       :footer (gs/button {:variant :outline :text "Cancel"})})]
+
+    ))
+
+
+
 
 (defn set-foo [{:keys [session params] :as ctx}]
   (biffx/submit-tx ctx
@@ -94,6 +92,11 @@
                                         :user/foo (:foo params)}]])
   {:status 303
    :headers {"location" "/app"}})
+
+
+
+
+
 
 (defn bar-form [{:keys [value]}]
   (biff/form
@@ -186,9 +189,11 @@
    :headers {"content-type" "application/json"}
    :body params})
 
+
 (def module
   {:static {"/about/" about-page}
    :routes ["/app" {:middleware [mid/wrap-signed-in]}
+            ["/demo" {:get demo}]
             ["" {:get app}]
             ["/set-foo" {:post set-foo}]
             ["/set-bar" {:post set-bar}]
