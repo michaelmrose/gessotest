@@ -55,10 +55,10 @@
 
             ;; --- Accordion Section ---
             [:div {:class "max-w-2xl mx-auto"}
-             [:.h1 "Single not collapsible from list"]
+             [:.h1 "Single not collapsible from list default via default-index"]
              (accordion
                {:type :single
-                :default-value 2
+                :default-index 0
                 :collapsible? false}
                (fn [{:keys [id title body]}]
                  {:value id
@@ -74,7 +74,7 @@
                   ["sideways" "bitch"]]))
 
 
-             [:.h1 "Multiple with default collapsible "]
+             [:.h1 "Multiple with default collapsible default from default-values "]
              (accordion
                {:type :multiple
                 :collapsible? false

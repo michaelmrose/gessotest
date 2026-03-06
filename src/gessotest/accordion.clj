@@ -84,15 +84,37 @@
   (map #(add-script-to-details-child % script) children))
 
 (defn- prepare-accordion-items
-  [{:keys [items item-fn type default-value default-values]}]
+  [{:keys [items item-fn type
+           default-value default-values
+           default-index default-indexes]}]
   (let [type (or type :multiple)
-        default-one (when default-value (->value default-value default-value))
-        default-many (->> (or default-values [])
-                          (map #(->value % %))
-                          set)
         items* (if (and item-fn items)
                  (map item-fn items)
-                 items)]
+                 items)
+        items* (vec (or items* []))
+        default-one (cond
+                      (some? default-value)
+                      (->value default-value default-value)
+
+                      (some? default-index)
+                      (when-let [item (nth items* default-index nil)]
+                        (->value (:value item) (str "item-" (inc default-index))))
+
+                      :else nil)
+        default-many (cond
+                       (seq default-values)
+                       (->> default-values
+                            (map #(->value % %))
+                            set)
+
+                       (seq default-indexes)
+                       (->> default-indexes
+                            (keep (fn [idx]
+                                    (when-let [item (nth items* idx nil)]
+                                      (->value (:value item) (str "item-" (inc idx))))))
+                            set)
+
+                       :else #{})]
     (map-indexed
      (fn [i item]
        (let [value (->value (:value item) (str "item-" (inc i)))
@@ -102,7 +124,7 @@
            (= type :single)   (assoc item :open? (= value default-one))
            (= type :multiple) (assoc item :open? (contains? default-many value))
            :else item)))
-     (or items* []))))
+     items*)))
 
 ;; -----------------------------------------------------------------------------
 ;; Components
@@ -140,7 +162,9 @@
             (if chevron?
               [[:span {:class "min-w-0"} text]
                [:span {:data-accordion-chevron true
-                       :aria-hidden "true"}
+                       :aria-hidden "true"
+                       :class "text-xl leading-none"
+                       }
                 "▾"]]
               (nodes text))))
       (let [[opts children] (normalize-component-args args)
@@ -152,7 +176,9 @@
             (if chevron?
               [(into [:span {:class "min-w-0"}] (normalize-children children))
                [:span {:data-accordion-chevron true
-                       :aria-hidden "true"}
+                       :aria-hidden "true"
+                       :class "text-xl leading-none"
+                       }
                 "▾"]]
               children))))))
 
@@ -228,28 +254,36 @@
      (accordion {:type :multiple} (accordion-item ...) ...)
 
   Shadcn-ish options:
-    :type            :single | :multiple (default :multiple)
-    :default-value   for :single
-    :default-values  for :multiple
-    :collapsible?    for :single (default true)
+    :type             :single | :multiple (default :multiple)
+    :default-value    for :single
+    :default-values   for :multiple
+    :default-index    for :single, zero-based
+    :default-indexes  for :multiple, zero-based
+    :collapsible?     for :single (default true)
 
   Notes:
   - We implement :single + :collapsible? using Hyperscript on toggle.
-  - We also flip the chevron ▾/▴ on toggle."
+  - We also flip the chevron ▾/▴ on toggle.
+  - Value-based defaults take precedence over index-based defaults."
   [& args]
   (let [root-class "border rounded-lg bg-white overflow-hidden shadow-sm"]
     (cond
       ;; (accordion {:items ...})
       (only-map-arg? args)
       (let [{:keys [props class attrs]} (split-opts (first args))
-            {:keys [items item-fn type default-value default-values collapsible?]} props
+            {:keys [items item-fn type
+                    default-value default-values
+                    default-index default-indexes
+                    collapsible?]} props
             script (accordion-script {:type type :collapsible? collapsible?})
             items* (prepare-accordion-items
                     {:items items
                      :item-fn item-fn
                      :type type
                      :default-value default-value
-                     :default-values default-values})]
+                     :default-values default-values
+                     :default-index default-index
+                     :default-indexes default-indexes})]
         (el :div
             {:class (class-names root-class class)
              :data-accordion-root true}
