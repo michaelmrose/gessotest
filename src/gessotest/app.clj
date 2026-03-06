@@ -63,7 +63,7 @@
                  {:value "foo"
                   :title title
                   :content body})
-               (for [a (range 1 3) b (range 3 5)]
+               (for [a ["fuck" "me" "sideways"] b ["jerk" "ass" "bitch"]]
                  {:title a :body b})
 
                )
