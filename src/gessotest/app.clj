@@ -9,8 +9,7 @@
    [ring.websocket :as ws]
    [rum.core :as rum]
    [tick.core :as tick]
-   [gessotest.gesso :as gs :refer [card button] ]
-   [gessotest.accordion :refer :all]
+   [gessotest.gesso :as gs :refer :all ]
    )
 
   )

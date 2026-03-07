@@ -1,8 +1,14 @@
 (ns gessotest.gesso
   (:require [clojure.string :as str]
             [gessotest.util :refer :all]
-            [gessotest.accordion :refer :all]
+            [gessotest.accordion :as accordion]
             ))
+
+;; public api
+(def accordion accordion/accordion)
+(def accordion-item accordion/accordion-item)
+(def accordion-trigger accordion/accordion-trigger)
+(def accordion-content accordion/accordion-content)
 
 ;; ---------------------------------------------------------------------------
 ;; Card Subcomponents
