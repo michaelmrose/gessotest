@@ -52,12 +52,6 @@
                   head))))
    body))
 
-(ns gessotest.ui
-  (:require [gessotest.gesso :as gs]
-            ;; ... other requires ...
-            ))
-
-;; (Assume your existing `base` function is here)
 
 (defn container
   "A reusable wrapper that prevents content from stretching across ultra-wide monitors.

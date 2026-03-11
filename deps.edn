@@ -14,7 +14,9 @@
         org.slf4j/slf4j-simple     {:mvn/version "2.0.0-alpha5"}
         org.slf4j/log4j-over-slf4j {:mvn/version "1.7.36"}
         org.slf4j/jul-to-slf4j     {:mvn/version "1.7.36"}
-        org.slf4j/jcl-over-slf4j   {:mvn/version "1.7.36"}}
+        org.slf4j/jcl-over-slf4j   {:mvn/version "1.7.36"}
+        michaelmrose/gesso {:local/root "../gesso"}
+        }
  :aliases
  {:dev {:extra-deps {com.biffweb/tasks {:git/url "https://github.com/jacobobryant/biff", :git/sha "0e1e207df27acb1758ec3604eb56af50b7bb47ea", :deps/root "libs/tasks"}}
         :extra-paths ["dev" "test"]

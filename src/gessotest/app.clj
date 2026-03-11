@@ -9,7 +9,7 @@
    [ring.websocket :as ws]
    [rum.core :as rum]
    [tick.core :as tick]
-   [gessotest.gesso :as gs :refer :all ]
+   [gesso.core :as gs :refer :all ]
    )
 
   )
