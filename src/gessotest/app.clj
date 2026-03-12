@@ -15,403 +15,242 @@
   )
 
 
-
 (defn app [ctx]
   (ui/page
    ctx
-   [:div {:class "space-y-12"}
+   [:div {:class "space-y-14"}
 
-    [:header {:class "text-center py-4"}
+    [:header {:class "mx-auto max-w-3xl text-center py-6 space-y-3"}
+     [:div {:class "text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground"}
+      "Component Demo"]
      [:h1 {:class "text-4xl font-bold tracking-tight"} "Gesso Component Library"]
-     [:p {:class "text-gray-600 mt-2"}
-      "Basecoat structures powered by Tailwind layouts."]]
+     [:p {:class "text-muted-foreground text-base md:text-lg"}
+      "Basecoat structures wrapped in Hiccup-friendly components, tested inside a real Biff app."]]
 
-    [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"}
-     (card
-      {:title "User Profile"
-       :description "Managing your public presence."
-       :content [:p "Because this is in a grid inside the container, it won't stretch."]
-       :footer (button {:variant :primary :text "Edit Profile"})})
+    [:section {:class "space-y-6"}
+     [:div {:class "mx-auto max-w-3xl text-center space-y-2"}
+      [:h2 {:class "text-2xl font-semibold tracking-tight"} "Core Surfaces"]
+      [:p {:class "text-muted-foreground"}
+       "Cards, actions, statuses, and alerts — the basic building blocks for most application screens."]]
 
-     (card
-      {:title "Status"
-       :content
-       [:div {:class "flex flex-wrap gap-2"}
-        (badge {:variant :secondary :text "Waiting"})
-        (badge {:variant :outline :text "Claimed"})
-        (badge {:variant :primary :text "In Progress"})
-        (badge {:variant :destructive :text "Blocked"})]
-       :footer [:div {:class "flex gap-2"}
-                (button {:variant :outline :text "Cancel"})
-                (button {:variant :secondary :text "Save"})]})
+     [:div {:class "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"}
+      (card
+       {:title "User Profile"
+        :description "A basic surface for profile or account information."
+        :content
+        [:div {:class "space-y-3"}
+         [:p "Because this card lives in a grid inside the page container, it keeps a comfortable readable width."]
+         [:div {:class "flex flex-wrap gap-2"}
+          (badge {:variant :secondary :text "Active"})
+          (badge {:variant :outline :text "Verified"})]]
+        :footer
+        [:div {:class "flex gap-2"}
+         (button {:variant :outline :text "Cancel"})
+         (button {:variant :primary :text "Edit Profile"})]})
 
-     (card
-      {:title "Alerts"
-       :content
-       [:div {:class "space-y-4"}
-        (alert {:title "Saved"
-                :content "Your settings were saved successfully."})
-        (alert {:variant :destructive
-                :title "Something went wrong"
-                :content "Please check the form and try again."})]})]
+      (card
+       {:title "Status"
+        :description "Small feedback primitives for queue and workflow state."
+        :content
+        [:div {:class "space-y-4"}
+         [:div {:class "flex flex-wrap gap-2"}
+          (badge {:variant :secondary :text "Waiting"})
+          (badge {:variant :outline :text "Claimed"})
+          (badge {:variant :primary :text "In Progress"})
+          (badge {:variant :destructive :text "Blocked"})]
+         [:p {:class "text-sm text-muted-foreground"}
+          "Badges work well for request lifecycles, employee dashboards, and admin views."]]
+        :footer
+        [:div {:class "flex gap-2"}
+         (button {:variant :outline :text "Back"})
+         (button {:variant :secondary :text "Save"})]})
 
-    [:div {:class "max-w-2xl mx-auto"}
-     [:h2 {:class "text-2xl font-semibold mb-6 text-center"} "Form Components"]
+      (card
+       {:title "Alerts"
+        :description "Inline messaging for success and error states."
+        :content
+        [:div {:class "space-y-4"}
+         (alert {:title "Saved"
+                 :content "Your settings were saved successfully."})
+         (alert {:variant :destructive
+                 :title "Something went wrong"
+                 :content "Please check the form and try again."})]})]]
+
+    [:section {:class "space-y-6 max-w-3xl mx-auto"}
+     [:div {:class "text-center space-y-2"}
+      [:h2 {:class "text-2xl font-semibold tracking-tight"} "Form Controls"]
+      [:p {:class "text-muted-foreground"}
+       "A more realistic composition showing fields grouped into clear sections with stronger hierarchy."]]
 
      (card
       {:title "Profile Form"
        :description "Testing label, field, input, textarea, select, checkbox, switch, and radio group."
        :content
-       [:form {:class "space-y-6"}
+       [:form {:class "space-y-8"}
 
-        (field
-         {:label-text "Display name"
-          :for "demo-display-name"
-          :required? true
-          :control (input {:id "demo-display-name"
-                           :name "display-name"
-                           :placeholder "Jane Doe"
-                           :required? true})
-          :description "This is the public name shown to other users."})
+        [:section {:class "space-y-5"}
+         [:div {:class "space-y-1"}
+          [:h3 {:class "text-lg font-semibold tracking-tight"} "Identity"]
+          [:p {:class "text-sm text-muted-foreground"}
+           "Basic account information and authentication fields."]]
 
-        (field
-         {:label-text "Email"
-          :for "demo-email"
-          :control (input {:type "email"
-                           :id "demo-email"
-                           :name "email"
-                           :placeholder "jane@example.com"})})
+         [:div {:class "space-y-5"}
+          (field
+           {:label-text "Display name"
+            :for "demo-display-name"
+            :required? true
+            :control (input {:id "demo-display-name"
+                             :name "display-name"
+                             :placeholder "Jane Doe"
+                             :required? true})
+            :description "This is the public name shown to other users."})
 
-        (field
-         {:label-text "Password"
-          :for "demo-password"
-          :control (input {:type "password"
-                           :id "demo-password"
-                           :name "password"
-                           :placeholder "Enter a password"})
-          :description "Password input uses the same base input component for now."})
+          (field
+           {:label-text "Email"
+            :for "demo-email"
+            :control (input {:type "email"
+                             :id "demo-email"
+                             :name "email"
+                             :placeholder "jane@example.com"})})
 
-        (field
-         {:label-text "Request category"
-          :for "demo-category"
-          :control (select
-                    {:id "demo-category"
-                     :name "category"
-                     :placeholder "Choose a category"
-                     :options [{:value "rides" :label "Rides"}
-                               {:value "groceries" :label "Groceries"}
-                               {:value "companionship" :label "Companionship"}
-                               {:value "other" :label "Other"}]})
-          :description "Native select for now; richer custom select can come later."})
+          (field
+           {:label-text "Password"
+            :for "demo-password"
+            :control (input {:type "password"
+                             :id "demo-password"
+                             :name "password"
+                             :placeholder "Enter a password"})
+            :description "Password input uses the same base input component for now."})]]
 
-        (field
-         {:label-text "Notes"
-          :for "demo-notes"
-          :control (textarea {:id "demo-notes"
-                              :name "notes"
-                              :rows 4
-                              :placeholder "Add any helpful details..."})
-          :description "Textarea uses the Basecoat textarea styling."})
+        [:hr {:class "border-border"}]
 
-        [:div {:class "space-y-4"}
-         [:h3 {:class "text-lg font-medium"} "Notification Preferences"]
+        [:section {:class "space-y-5"}
+         [:div {:class "space-y-1"}
+          [:h3 {:class "text-lg font-semibold tracking-tight"} "Request Details"]
+          [:p {:class "text-sm text-muted-foreground"}
+           "Structured fields suited to Humanhelp-style requests and task flows."]]
 
-         [:div {:class "flex items-center gap-3"}
-          (checkbox {:id "demo-terms"
-                     :name "terms"
-                     :checked true})
-          (label {:for "demo-terms"
-                  :text "I agree to receive service updates"})]
+         [:div {:class "space-y-5"}
+          (field
+           {:label-text "Request category"
+            :for "demo-category"
+            :control (select
+                      {:id "demo-category"
+                       :name "category"
+                       :placeholder "Choose a category"
+                       :options [{:value "rides" :label "Rides"}
+                                 {:value "groceries" :label "Groceries"}
+                                 {:value "companionship" :label "Companionship"}
+                                 {:value "other" :label "Other"}]})
+            :description "Native select for now; richer custom select can come later."})
 
-         [:div {:class "flex items-center justify-between rounded-lg border p-4"}
-          [:div
-           [:div {:class "font-medium"} "Marketing emails"]
-           [:p {:class "text-sm text-muted-foreground"}
-            "Receive occasional updates about new features."]]
-          (switch {:id "demo-marketing"
-                   :name "marketing"})]
+          (field
+           {:label-text "Notes"
+            :for "demo-notes"
+            :control (textarea {:id "demo-notes"
+                                :name "notes"
+                                :rows 4
+                                :placeholder "Add any helpful details..."})
+            :description "Textarea uses the Basecoat textarea styling."})]]
 
-         [:div {:class "space-y-3"}
-          [:div {:class "font-medium"} "Notify me about..."]
-          (radio-group
-           {:name "notify"
-            :orientation :vertical
-            :options [{:value "all" :label "All new messages" :checked true}
-                      {:value "mentions" :label "Direct messages and mentions"}
-                      {:value "nothing" :label "Nothing"}]})]]]
-       :footer [:div {:class "flex gap-2"}
-                (button {:variant :outline :text "Cancel"})
-                (button {:variant :primary :text "Submit"})]})]
+        [:hr {:class "border-border"}]
 
-    [:div {:class "max-w-2xl mx-auto space-y-8"}
-     [:h2 {:class "text-2xl font-semibold text-center"} "Accordion"]
+        [:section {:class "space-y-5"}
+         [:div {:class "space-y-1"}
+          [:h3 {:class "text-lg font-semibold tracking-tight"} "Preferences"]
+          [:p {:class "text-sm text-muted-foreground"}
+           "Examples of boolean and single-choice controls for notifications and settings."]]
 
-     [:div
-      [:h3 {:class "text-lg font-medium mb-3"} "Single, not collapsible"]
-      (accordion
-       {:type :single
-        :default-index 0
-        :collapsible? false}
-       (fn [{:keys [id title body]}]
-         {:value id
-          :title title
-          :content body})
-       (map-indexed
-        (fn [i [title body]]
-          {:id (inc i)
-           :title title
-           :body body})
-        [["How layout works" "The outer page provides the container, and the inner grid controls card sizing."]
-         ["Why Basecoat" "It gives us a solid structural baseline while Tailwind handles layout."]
-         ["Why Gesso" "Gesso wraps those patterns in ergonomic Hiccup-friendly components."]]))]
+         [:div {:class "space-y-4"}
+          [:div {:class "flex items-center gap-3 rounded-md px-3 py-2 hover:bg-accent/40"}
+           (checkbox {:id "demo-terms"
+                      :name "terms"
+                      :checked true})
+           (label {:for "demo-terms"
+                   :text "I agree to receive service updates"})]
 
-     [:div
-      [:h3 {:class "text-lg font-medium mb-3"} "Multiple, default open values"]
-      (accordion
-       {:type :multiple
-        :collapsible? false
-        :default-values [:item-1 :item-2]}
-       (fn [{:keys [id title body]}]
-         {:value id
-          :title title
-          :content body})
-       [{:id :item-1 :title "One" :body [:p "A"]}
-        {:id :item-2 :title "Two" :body [:p "B"]}])]
+          [:div {:class "flex items-center justify-between rounded-lg border p-4"}
+           [:div {:class "space-y-1"}
+            [:div {:class "font-medium"} "Marketing emails"]
+            [:p {:class "text-sm text-muted-foreground"}
+             "Receive occasional updates about new features."]]
+           (switch {:id "demo-marketing"
+                    :name "marketing"})]
 
-     [:div
-      [:h3 {:class "text-lg font-medium mb-3"} "Simple map form"]
-      (accordion
-       {:items [{:title "How does the layout work?"
-                 :content "We use a combination of a max-width container in ui/page and a CSS grid in the app function."
-                 :open? true}
-                {:title "Are these native elements?"
-                 :content "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."
-                 :open? true}
-                {:title "Can I use short-form maps?"
+          [:div {:class "space-y-3"}
+           [:div {:class "space-y-1"}
+            [:div {:class "font-medium"} "Notify me about…"]
+            [:p {:class "text-sm text-muted-foreground"}
+             "This is still a plain radio group for now; later this would be a good candidate for radio cards or segmented controls."]]
+           (radio-group
+            {:name "notify"
+             :orientation :vertical
+             :options [{:value "all" :label "All new messages" :checked true}
+                       {:value "mentions" :label "Direct messages and mentions"}
+                       {:value "nothing" :label "Nothing"}]})]]]]
+       :footer
+       [:div {:class "flex justify-end gap-2"}
+        (button {:variant :outline :text "Cancel"})
+        (button {:variant :primary :text "Submit"})]})]
 
-                 :content "Absolutely. Most components support a map-based short form for cleaner code."}]})]]]))
+    [:section {:class "space-y-6 max-w-3xl mx-auto"}
+     [:div {:class "text-center space-y-2"}
+      [:h2 {:class "text-2xl font-semibold tracking-tight"} "Disclosure Patterns"]
+      [:p {:class "text-muted-foreground"}
+       "Accordion variants showing single-open, multiple-open, and concise map-driven usage."]]
 
-#_(defn app [ctx]
-  (ui/page
-   ctx
-   [:div {:class "space-y-12"}
+     [:div {:class "space-y-6"}
+      (card
+       {:title "Single, not collapsible"
+        :description "Good for a focused FAQ or settings group where one section should always remain open."
+        :content
+        (accordion
+         {:type :single
+          :default-index 0
+          :collapsible? false}
+         (fn [{:keys [id title body]}]
+           {:value id
+            :title title
+            :content body})
+         (map-indexed
+          (fn [i [title body]]
+            {:id (inc i)
+             :title title
+             :body body})
+          [["How layout works" "The outer page provides the container, and the inner grid controls card sizing."]
+           ["Why Basecoat" "It gives us a solid structural baseline while Tailwind handles layout."]
+           ["Why Gesso" "Gesso wraps those patterns in ergonomic Hiccup-friendly components."]]))})
 
-    [:header {:class "text-center py-4"}
-     [:h1 {:class "text-4xl font-bold tracking-tight"} "Gesso Component Library"]
-     [:p {:class "text-gray-600 mt-2"} "Basecoat structures powered by Tailwind layouts."]]
+      (card
+       {:title "Multiple, default open values"
+        :description "Useful when several sections should remain visible at once."
+        :content
+        (accordion
+         {:type :multiple
+          :collapsible? false
+          :default-values [:item-1 :item-2]}
+         (fn [{:keys [id title body]}]
+           {:value id
+            :title title
+            :content body})
+         [{:id :item-1 :title "One" :body [:p "A"]}
+          {:id :item-2 :title "Two" :body [:p "B"]}])})
 
-    [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"}
-     (card
-      {:title "User Profile"
-       :description "Managing your public presence."
-       :content [:p "Because this is in a grid inside the container, it won't stretch."]
-       :footer (button {:variant :primary :text "Edit Profile"})})
-
-     (card
-      {:title "Settings"
-       :content [:p "Another well-sized Basecoat card using a responsive grid."]
-       :footer [:div {:class "flex gap-2"}
-                (button {:variant :outline :text "Cancel"})
-                (button {:variant :secondary :text "Save"})]})
-
-     (card
-      {:title "Button Variants"
-       :content [:div {:class "grid grid-cols-2 gap-2"}
-                 (button {:variant :ghost :text "Ghost"})
-                 (button {:variant :destructive :text "Danger"})
-                 (button {:variant :link :text "Link Style"})
-                 (button {:variant :outline :size :sm :text "Small Outline"})]})]
-
-    [:div {:class "max-w-2xl mx-auto"}
-     [:h2 {:class "text-2xl font-semibold mb-6 text-center"} "Form Components"]
-
-     (card
-      {:title "Contact Preferences"
-       :description "Testing label, field, input, textarea, and select."
-       :content
-       [:form {:class "space-y-6"}
-        (field
-         {:label "Display name"
-          :for "demo-display-name"
-          :control (input {:attrs {:id "demo-display-name"
-                                   :name "display-name"
-                                   :placeholder "Jane Doe"}})
-          :description "This is the public name shown to other users."})
-
-        (field
-         {:label "Email"
-          :for "demo-email"
-          :control (input {:type "email"
-                           :attrs {:id "demo-email"
-                                   :name "email"
-                                   :placeholder "jane@example.com"}})})
-
-        (field
-         {:label "Request category"
-          :for "demo-category"
-          :control (select
-                    {:attrs {:id "demo-category"
-                             :name "category"}
-                     :options [{:value "rides" :label "Rides"}
-                               {:value "groceries" :label "Groceries"}
-                               {:value "companionship" :label "Companionship"}
-                               {:value "other" :label "Other"}]})
-          :description "A native select for now; a richer custom select can come later."})
-
-        (field
-         {:label "Notes"
-          :for "demo-notes"
-          :control (textarea {:attrs {:id "demo-notes"
-                                      :name "notes"
-                                      :rows 4
-                                      :placeholder "Add any helpful details..."}})
-          :description "Textarea uses the Basecoat textarea styling."})]
-       :footer [:div {:class "flex gap-2"}
-                (button {:variant :outline :text "Cancel"})
-                (button {:variant :primary :text "Submit"})]})]
-
-    [:div {:class "max-w-2xl mx-auto space-y-8"}
-     [:h2 {:class "text-2xl font-semibold text-center"} "Accordion"]
-
-     [:div
-      [:h3 {:class "text-lg font-medium mb-3"} "Single, not collapsible, default via index"]
-      (accordion
-       {:type :single
-        :default-index 0
-        :collapsible? false}
-       (fn [{:keys [id title body]}]
-         {:value id
-          :title title
-          :content body})
-       (map-indexed
-        (fn [i [title body]]
-          {:id (inc i)
-           :title title
-           :body body})
-        [["How layout works" "The outer page provides the container, and the inner grid controls card sizing."]
-         ["Why Basecoat" "It gives us a solid structural baseline while Tailwind handles layout."]
-         ["Why Gesso" "Gesso wraps those patterns in ergonomic Hiccup-friendly components."]]))]
-
-     [:div
-      [:h3 {:class "text-lg font-medium mb-3"} "Multiple, default open values"]
-      (accordion
-       {:type :multiple
-        :collapsible? false
-        :default-values [:item-1 :item-2]}
-       (fn [{:keys [id title body]}]
-         {:value id
-          :title title
-          :content body})
-       [{:id :item-1 :title "One" :body [:p "A"]}
-        {:id :item-2 :title "Two" :body [:p "B"]}])]
-
-     [:div
-      [:h3 {:class "text-lg font-medium mb-3"} "Multiple, simple map form"]
-      (accordion
-       {:items [{:title "How does the layout work?"
-                 :content "We use a combination of a max-width container in ui/page and a CSS grid in the app function."
-                 :open? true}
-                {:title "Are these native elements?"
-                 :content "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."
-                 :open? true}
-                {:title "Can I use short-form maps?"
-                 :content "Absolutely. Most components support a map-based short form for cleaner code."}]})]]]))
+      (card
+       {:title "Simple map form"
+        :description "The shortest route when you just want to supply a few items."
+        :content
+        (accordion
+         {:items [{:title "How does the layout work?"
+                   :content "We use a combination of a max-width container in ui/page and a CSS grid in the app function."
+                   :open? true}
+                  {:title "Are these native elements?"
+                   :content "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."
+                   :open? true}
+                  {:title "Can I use short-form maps?"
+                   :content "Absolutely. Most components support a map-based short form for cleaner code."}]})})]]]))
 
 
-
-
-
-
-
-
-
-
-
-
-#_(defn app [ctx]
-  (ui/page ctx
-           [:div {:class "space-y-12"}
-
-            ;; --- Header Section ---
-            [:header {:class "text-center py-4"}
-             [:h1 {:class "text-4xl font-bold tracking-tight"} "Gesso Component Library"]
-             [:p {:class "text-gray-600 mt-2"} "Basecoat structures powered by Tailwind layouts."]]
-
-            ;; --- Cards Grid ---
-            ;; The grid prevents cards from stretching on your 28" screen.
-            [:div {:class "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"}
-
-             ;; Card 1: Standard Profile
-             (card
-               {:title "User Profile"
-                :description "Managing your public presence."
-                :content [:p "Because this is in a grid inside the container, it won't stretch!"]
-                :footer (gs/button {:variant :primary :text "Edit Profile"})})
-
-             ;; Card 2: Settings / Actions
-             ;; FIXED: Removed the outer () from the footer vector
-             (card
-               {:title "Settings"
-                :content [:p "Another perfectly sized Basecoat card using Tailwind's max-w-md."]
-                :footer [:div {:class "flex gap-2"}
-                         (button {:variant :outline :text "Cancel"})
-                         (button {:variant :secondary :text "Save"})]})
-
-             ;; Card 3: Button Gallery
-             (card
-               {:title "Button Variants"
-                :content [:div {:class "grid grid-cols-2 gap-2"}
-                          (button {:variant :ghost :text "Ghost"})
-                          (button {:variant :destructive :text "Danger"})
-                          (button {:variant :link :text "Link Style"})
-                          (button {:variant :outline :size :sm :text "Small Outline"})]})]
-
-            ;; --- Accordion Section ---
-            [:div {:class "max-w-2xl mx-auto"}
-             [:.h1 "Single not collapsible from list default via default-index"]
-             (accordion
-               {:type :single
-                :default-index 0
-                :collapsible? false}
-               (fn [{:keys [id title body]}]
-                 {:value id
-                  :title title
-                  :content body})
-               (map-indexed
-                 (fn [i [title body]]
-                   {:id (inc i)
-                    :title title
-                    :body body})
-                 [["fuck" "jerk"]
-                  ["me" "ass"]
-                  ["sideways" "bitch"]]))
-
-
-             [:.h1 "Multiple with default collapsible default from default-values "]
-             (accordion
-               {:type :multiple
-                :collapsible? false
-                :default-values [:item-1 :item-2]
-                }
-               (fn [{:keys [id title body]}]
-                 {:value id
-                  :title title
-                  :content body})
-               [{:id :item-1 :title "One" :body [:p "A"]}
-                {:id :item-2 :title "Two" :body [:p "B"]}])
-             [:h2 {:class "text-2xl font-semibold mb-6 text-center"} "Frequently Asked Questions"]
-
-             [:.h1 "Multiple simple"]
-             (accordion
-               {:items [{:title "How does the layout work?"
-                         :content "We use a combination of a max-width container in ui/page and a CSS grid here in the app function."
-                         :open? true}
-                        {:title "Are these native elements?"
-                         :content "Yes! The accordion uses the HTML5 <details> and <summary> tags, styled by Basecoat."
-                         :open? true}
-                        {:title "Can I use short-form maps?"
-                         :content "Absolutely. Every component here was generated using the map-based 'Short Form' for cleaner code."}]})]
-            ]))
 
 
 
