@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   p {
     @apply mb-3;
@@ -22,9 +21,9 @@
 }
 
 @layer components {
-  .btn {
-    @apply bg-blue-500 hover:bg-blue-700 text-center py-2 px-4 rounded disabled:opacity-50 text-white;
-  }
+  /* .btn {
+     @apply bg-blue-500 hover:bg-blue-700 text-center py-2 px-4 rounded disabled:opacity-50 text-white;
+     } */
 }
 
 @layer utilities {
