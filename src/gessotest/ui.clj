@@ -27,12 +27,14 @@
        (update :base/head
                (fn [head]
                  (concat
-                  [;; Basecoat (pinned)
-                   [:link {:rel "stylesheet"
-                           :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
+                  [
 
                    [:link {:rel "stylesheet"
                            :href (static-path "/css/main.css")}]
+
+                   [:link {:rel "stylesheet"
+                           :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
+
                    [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
                              :defer true}]
 
