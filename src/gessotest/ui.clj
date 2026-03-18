@@ -35,6 +35,9 @@
                    [:link {:rel "stylesheet"
                            :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
 
+                   [:link {:rel "stylesheet"
+                           :href (static-path "/gesso/themes.css")}]
+
                    [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
                              :defer true}]
 
@@ -68,7 +71,7 @@
   [ctx & body]
   (base ctx
         ;; The Outer App Shell (Flexbox to push footer down if page is short)
-        [:div {:class "min-h-screen flex flex-col bg-slate-50"}
+        [:div {:class "min-h-screen flex flex-col"}
 
          ;; (Optional) Header/Navbar would go here
          ;; [:header {:class "w-full bg-white shadow-sm border-b p-4"} "My App"]
