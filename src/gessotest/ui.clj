@@ -22,7 +22,7 @@
    biff/base-html
    (-> ctx
        (merge
-         (theme "vercel" :system)
+         (theme "violet" :dark)
          #:base{:title settings/app-name
                 :lang "en-US"
                 :icon "/img/glider.png"
@@ -46,6 +46,11 @@
 
                    [:link {:rel "stylesheet"
                            :href (static-path "/gesso/themes.css")}]
+
+                   ;; When local themes exist this file will be built by running bb themes
+                   (when (io/resource "public/gesso/app-themes.css")
+                     [:link {:rel "stylesheet"
+                             :href (static-path "/gesso/app-themes.css")}])
 
                    [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
                              :defer true}]

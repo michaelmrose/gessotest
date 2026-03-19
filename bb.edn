@@ -1,2 +1,11 @@
-{:tasks
- {dev (shell "clj -M:dev dev")}}
+{:paths ["src" "resources" "../gesso/src" "../gesso/resources"]
+
+ :tasks
+ {dev
+  (shell "clj -M:dev dev")
+
+  themes
+  (do
+    ((requiring-resolve 'gesso.build.themes/build!)
+     {:input-dir "resources/themes"
+      :output-file "resources/public/gesso/app-themes.css"}))}}
