@@ -5,7 +5,9 @@
             [com.biffweb :as biff]
             [ring.middleware.anti-forgery :as csrf]
             [ring.util.response :as ring-response]
-            [rum.core :as rum]))
+            [rum.core :as rum]
+            ;; [gesso.theme :as gtheme :refer [theme]]
+            ))
 
 (defn static-path [path]
   (if-some [last-modified (some-> (io/resource (str "public" path))
@@ -15,11 +17,65 @@
     (str path "?t=" last-modified)
     path))
 
+
+
 (defn base [{:keys [::recaptcha] :as ctx} & body]
   (apply
    biff/base-html
    (-> ctx
-       (merge #:base{:title settings/app-name
+       (merge
+         ;; (theme "midnightbloom" :system)
+         #:base{:title settings/app-name
+                :lang "en-US"
+                :icon "/img/glider.png"
+                :description (str settings/app-name " Description")
+                :image "https://clojure.org/images/clojure-logo-120b.png"})
+       (update :base/head
+               (fn [head]
+                 (concat
+                  ;; 1. Configuration Meta Tags (Required by your gesso-theme.js)
+                  [[:meta {:name "gesso-theme-default" :content "violet"}]
+                   [:meta {:name "gesso-theme-mode-default" :content "dark"}]]
+
+                  head
+
+                  ;; 3. Scripts and Stylesheets
+                  [[:script {:src (static-path "/js/gesso-theme.js")
+                            :defer true}]
+
+                   [:link {:rel "stylesheet"
+                           :href (static-path "/css/main.css")}]
+
+                   [:link {:rel "stylesheet"
+                           :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
+
+                   [:link {:rel "stylesheet"
+                           :href (static-path "/gesso/themes.css")}]
+
+                   [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
+                             :defer true}]
+
+                   [:script {:src (static-path "/js/main.js")
+                             :defer true}]
+
+                   ;; HTMX + extensions
+                   [:script {:src "https://unpkg.com/htmx.org@2.0.7"}]
+                   [:script {:src "https://unpkg.com/htmx-ext-ws@2.0.2/ws.js"}]
+                   [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
+
+                   ;; Optional: recaptcha
+                   (when recaptcha
+                     [:script {:src "https://www.google.com/recaptcha/api.js"
+                               :async "async"
+                               :defer "defer"}])]))))
+   body))
+#_(defn base [{:keys [::recaptcha] :as ctx} & body]
+  (apply
+   biff/base-html
+   (-> ctx
+       (merge
+         (gtheme/theme "vercel" :system)
+         #:base{:title settings/app-name
                      :lang "en-US"
                      :icon "/img/glider.png"
                      :description (str settings/app-name " Description")
@@ -28,6 +84,9 @@
                (fn [head]
                  (concat
                   [
+
+                  [ :script {:src (static-path "/js/gesso-theme.js")
+                            :defer true}]
 
                    [:link {:rel "stylesheet"
                            :href (static-path "/css/main.css")}]
