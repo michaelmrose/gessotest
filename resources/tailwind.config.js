@@ -1,5 +1,20 @@
+const { execFileSync } = require('child_process');
+
+function resolveGessoPath() {
+  try {
+    return execFileSync(
+      'bb',
+      ['-m', 'gesso.build.find-path', 'gesso'],
+      { encoding: 'utf8' }
+    ).trim();
+  } catch (_e) {
+    return null;
+  }
+}
+
+const gessoPath = resolveGessoPath();
+
 module.exports = {
-  // Add this block to stop Tailwind from "breaking" Basecoat
   corePlugins: {
     preflight: false,
     transform: false,
@@ -7,8 +22,8 @@ module.exports = {
   content: [
     './src/**/*',
     './resources/**/*',
+    ...(gessoPath ? [`${gessoPath}/**/*`] : []),
   ],
-theme: {},
-  plugins: [
-  ],
-}
+  theme: {},
+  plugins: [],
+};
