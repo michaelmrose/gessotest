@@ -248,7 +248,8 @@
                    :content "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."
                    :open? true}
                   {:title "Can I use short-form maps?"
-                   :content "Absolutely. Most components support a map-based short form for cleaner code."}]})})]]]))
+                   :content "Absolutely. Most components support a map-based short form for cleaner code."}]})})
+      ]]]))
 
 
 

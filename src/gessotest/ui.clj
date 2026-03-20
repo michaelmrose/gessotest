@@ -22,7 +22,7 @@
    biff/base-html
    (-> ctx
        (merge
-         (theme "violet" :dark)
+         (theme "cosmicnight" :light)
          #:base{:title settings/app-name
                 :lang "en-US"
                 :icon "/img/glider.png"
