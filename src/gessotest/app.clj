@@ -247,6 +247,114 @@
                 {:title "Can I use short-form maps?"
                  :content "Absolutely. Most components support a map-based short form for cleaner code."}]})})]])
 
+(defn- tabs-section []
+  [:section {:class "space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Tabs"
+    "Layered sections of content shown one at a time, with a restrained Radix-inspired presentation.")
+
+   [:div {:class "space-y-6"}
+
+    (card
+     {:title "Basic tabs"
+      :description "A simple two-panel tab set with form content."
+      :content
+      (tabs
+       {:default-value :account
+        :id "demo-tabs-basic"}
+
+       (tabs-list
+        (tabs-trigger {:value :account} "Account")
+        (tabs-trigger {:value :password} "Password"))
+
+       (tabs-content
+        {:value :account}
+        [:div {:class "space-y-5"}
+         [:p {:class "text-sm text-muted-foreground"}
+          "Make changes to your account here. Click save when you're done."]
+         [:div {:class "space-y-4"}
+          (field
+           {:label-text "Name"
+            :for "tabs-account-name"
+            :control (input {:id "tabs-account-name"
+                             :value "Pedro Duarte"})})
+          (field
+           {:label-text "Username"
+            :for "tabs-account-username"
+            :control (input {:id "tabs-account-username"
+                             :value "@peduarte"})})]
+         [:div {:class "flex justify-end"}
+          (button {:variant :primary :text "Save changes"})]])
+
+       (tabs-content
+        {:value :password}
+        [:div {:class "space-y-5"}
+         [:p {:class "text-sm text-muted-foreground"}
+          "Change your password here. After saving, you'll be logged out."]
+         [:div {:class "space-y-4"}
+          (field
+           {:label-text "Current password"
+            :for "tabs-current-password"
+            :control (input {:id "tabs-current-password"
+                             :type "password"})})
+          (field
+           {:label-text "New password"
+            :for "tabs-new-password"
+            :control (input {:id "tabs-new-password"
+                             :type "password"})})
+          (field
+           {:label-text "Confirm password"
+            :for "tabs-confirm-password"
+            :control (input {:id "tabs-confirm-password"
+                             :type "password"})})]
+         [:div {:class "flex justify-end"}
+          (button {:variant :primary :text "Change password"})]]))})
+
+    (card
+     {:title "Three tabs"
+      :description "Useful for compact settings and dashboard sections."
+      :content
+      (tabs
+       {:default-value :overview
+        :id "demo-tabs-three"}
+
+       (tabs-list
+        (tabs-trigger {:value :overview} "Overview")
+        (tabs-trigger {:value :activity} "Activity")
+        (tabs-trigger {:value :access} "Access"))
+
+       (tabs-content
+        {:value :overview}
+        [:div {:class "space-y-3"}
+         [:p {:class "text-sm text-muted-foreground"}
+          "Overview content can stay light and summary-oriented."]
+         [:div {:class "flex flex-wrap gap-2"}
+          (badge {:variant :secondary :text "Healthy"})
+          (badge {:variant :outline :text "12 Members"})
+          (badge {:variant :outline :text "3 Pending"})]])
+
+       (tabs-content
+        {:value :activity}
+        [:div {:class "space-y-3"}
+         [:p {:class "text-sm text-muted-foreground"}
+          "Recent activity, audit notes, or timeline-style information fits well here."]
+         (alert
+          {:title "Last update"
+           :content "The workspace settings were updated 2 hours ago."})])
+
+       (tabs-content
+        {:value :access}
+        [:div {:class "space-y-4"}
+         [:p {:class "text-sm text-muted-foreground"}
+          "Permission-related controls are a natural tab use case."]
+         [:div {:class "flex items-center justify-between rounded-lg border p-4"}
+          [:div {:class "space-y-1"}
+           [:div {:class "font-medium"} "Allow external invites"]
+           [:p {:class "text-sm text-muted-foreground"}
+            "Let members invite collaborators from outside the organization."]]
+          (switch {:id "tabs-allow-invites"
+                   :name "allow-invites"})]]))})]])
+
 (defn- dialogs-section []
   [:section {:class "space-y-6 max-w-3xl mx-auto"}
    (section-heading
@@ -322,6 +430,8 @@
                                (button {:variant :destructive
                                         :text "Delete"}))))})]])
 
+
+
 (defn- dropdown-menus-section []
   [:section {:class "space-y-6 max-w-3xl mx-auto"}
    (section-heading
@@ -374,6 +484,7 @@
     (disclosure-patterns-section)
     (dialogs-section)
     (dropdown-menus-section)
+    (tabs-section)
     ]))
 
 
