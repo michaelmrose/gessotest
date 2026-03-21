@@ -322,6 +322,48 @@
                                (button {:variant :destructive
                                         :text "Delete"}))))})]])
 
+(defn- dropdown-menus-section []
+  [:section {:class "space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Dropdown Menus"
+    "Compact floating menus for actions, shortcuts, and grouped command lists.")
+
+   [:div {:class "space-y-6"}
+
+    (card
+     {:title "Simple short form"
+      :description "The quickest way to render a trigger plus a few menu items."
+      :content
+      (dropdown-menu
+       {:trigger "Open menu"
+        :items [{:text "Profile"}
+                {:text "Settings"}
+                {:separator? true}
+                {:text "Sign out"}]})})
+
+    (card
+     {:title "Composed menu"
+      :description "Use the lower-level pieces for labels, separators, and right-side hints."
+      :content
+      (dropdown-menu {}
+                     (dropdown-menu-trigger
+                      {:class "btn-outline"}
+                      "Actions")
+                     (dropdown-menu-content {}
+                                            (dropdown-menu-label {:text "Account"})
+                                            (dropdown-menu-item {}
+                                                                [:span "Profile"]
+                                                                (dropdown-menu-right-slot {} "⌘P"))
+                                            (dropdown-menu-item {}
+                                                                [:span "Billing"]
+                                                                (dropdown-menu-right-slot {} "⌘B"))
+                                            (dropdown-menu-separator)
+                                            (dropdown-menu-label {:text "Session"})
+                                            (dropdown-menu-item {:disabled? true}
+                                                                [:span "Switch workspace"])
+                                            (dropdown-menu-item {}
+                                                                [:span "Sign out"])))})]])
+
 (defn app [ctx]
   (ui/page
    ctx
@@ -330,7 +372,9 @@
     (core-surfaces-section)
     (form-controls-section)
     (disclosure-patterns-section)
-    (dialogs-section)]))
+    (dialogs-section)
+    (dropdown-menus-section)
+    ]))
 
 
 
