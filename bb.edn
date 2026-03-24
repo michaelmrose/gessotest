@@ -1,11 +1,20 @@
-{:paths ["src" "resources" "../gesso/src" "../gesso/resources"]
+{:paths ["src" "resources"]
+
+ :deps
+ {your/gesso-lib-name {:local/root "../gesso"}}
 
  :tasks
  {dev
   (shell "clj -M:dev dev")
 
   themes
-  (do
+  (let [gesso-path (-> (shell {:out :string}
+                              "bb" "-m" "gesso.build.find-path" "gesso")
+                       :out
+                       clojure.string/trim)]
+    (when (seq gesso-path)
+      (babashka.classpath/add-classpath (str gesso-path "/src"))
+      (babashka.classpath/add-classpath (str gesso-path "/resources")))
     ((requiring-resolve 'gesso.build.themes/build!)
      {:input-dir "resources/themes"
       :output-file "resources/public/gesso/app-themes.css"}))}}
