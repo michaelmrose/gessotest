@@ -14,19 +14,21 @@
 (defn- section-heading
   [title description]
   [:div {:class "text-center space-y-2"}
-   [:h2 {:class "text-2xl font-semibold tracking-tight"} title]
-   [:p {:class "text-muted-foreground"} description]])
+   [:h2 {:class "font-heading leading-heading tracking-heading text-2xl font-semibold"}
+    title]
+   [:p {:class "font-body leading-body text-muted-foreground"} description]])
 
 (defn- hero-section []
   [:header {:class "mx-auto max-w-3xl text-center py-6 space-y-3"}
-   [:div {:class "text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground"}
+   [:div {:class "font-body text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground"}
     "Component Demo"]
-   [:h1 {:class "text-4xl font-bold tracking-tight"} "Gesso Component Library"]
-   [:p {:class "text-muted-foreground text-base md:text-lg"}
+   [:h1 {:class "font-heading leading-heading tracking-heading text-4xl font-bold"}
+    "Gesso Component Library"]
+   [:p {:class "font-body leading-body text-muted-foreground text-base-theme md:text-lg-theme"}
     "Basecoat structures wrapped in Hiccup-friendly components, tested inside a real Biff app."]])
 
 (defn- core-surfaces-section []
-  [:section {:class "space-y-6"}
+  [:section {:class "gap-section space-y-6"}
    (section-heading
     "Core Surfaces"
     "Cards, actions, statuses, and alerts — the basic building blocks for most application screens.")
@@ -35,7 +37,7 @@
      {:title "User Profile"
       :description "A basic surface for profile or account information."
       :content
-      [:div {:class "space-y-3"}
+      [:div {:class "gap-stack space-y-3 font-body leading-body"}
        [:p "Because this card lives in a grid inside the page container, it keeps a comfortable readable width."]
        [:div {:class "flex flex-wrap gap-2"}
         (badge {:variant :secondary :text "Active"})
@@ -49,13 +51,13 @@
      {:title "Status"
       :description "Small feedback primitives for queue and workflow state."
       :content
-      [:div {:class "space-y-4"}
+      [:div {:class "gap-stack space-y-4 font-body leading-body"}
        [:div {:class "flex flex-wrap gap-2"}
         (badge {:variant :secondary :text "Waiting"})
         (badge {:variant :outline :text "Claimed"})
         (badge {:variant :primary :text "In Progress"})
         (badge {:variant :destructive :text "Blocked"})]
-       [:p {:class "text-sm text-muted-foreground"}
+       [:p {:class "font-body leading-body text-sm text-muted-foreground"}
         "Badges work well for request lifecycles, employee dashboards, and admin views."]]
       :footer
       [:div {:class "flex gap-2"}
@@ -66,7 +68,7 @@
      {:title "Alerts"
       :description "Inline messaging for success and error states."
       :content
-      [:div {:class "space-y-4"}
+      [:div {:class "gap-stack space-y-4"}
        (alert {:title "Saved"
                :content "Your settings were saved successfully."})
        (alert {:variant :destructive
@@ -74,7 +76,7 @@
                :content "Please check the form and try again."})]})]])
 
 (defn- form-controls-section []
-  [:section {:class "space-y-6 max-w-3xl mx-auto"}
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
    (section-heading
     "Form Controls"
     "A more realistic composition showing fields grouped into clear sections with stronger hierarchy.")
@@ -83,15 +85,16 @@
     {:title "Profile Form"
      :description "Testing label, field, input, textarea, select, checkbox, switch, and radio group."
      :content
-     [:form {:class "space-y-8"}
+     [:form {:class "gap-section space-y-8"}
 
-      [:section {:class "space-y-5"}
+      [:section {:class "gap-stack space-y-5"}
        [:div {:class "space-y-1"}
-        [:h3 {:class "text-lg font-semibold tracking-tight"} "Identity"]
-        [:p {:class "text-sm text-muted-foreground"}
+        [:h3 {:class "font-heading leading-heading tracking-heading text-lg font-semibold"}
+         "Identity"]
+        [:p {:class "font-body leading-body text-sm text-muted-foreground"}
          "Basic account information and authentication fields."]]
 
-       [:div {:class "space-y-5"}
+       [:div {:class "gap-stack space-y-5"}
         (field
          {:label-text "Display name"
           :for "demo-display-name"
@@ -121,13 +124,14 @@
 
       [:hr {:class "border-border"}]
 
-      [:section {:class "space-y-5"}
+      [:section {:class "gap-stack space-y-5"}
        [:div {:class "space-y-1"}
-        [:h3 {:class "text-lg font-semibold tracking-tight"} "Request Details"]
-        [:p {:class "text-sm text-muted-foreground"}
+        [:h3 {:class "font-heading leading-heading tracking-heading text-lg font-semibold"}
+         "Request Details"]
+        [:p {:class "font-body leading-body text-sm text-muted-foreground"}
          "Structured fields suited to Humanhelp-style requests and task flows."]]
 
-       [:div {:class "space-y-5"}
+       [:div {:class "gap-stack space-y-5"}
         (field
          {:label-text "Request category"
           :for "demo-category"
@@ -152,13 +156,14 @@
 
       [:hr {:class "border-border"}]
 
-      [:section {:class "space-y-5"}
+      [:section {:class "gap-stack space-y-5"}
        [:div {:class "space-y-1"}
-        [:h3 {:class "text-lg font-semibold tracking-tight"} "Preferences"]
-        [:p {:class "text-sm text-muted-foreground"}
+        [:h3 {:class "font-heading leading-heading tracking-heading text-lg font-semibold"}
+         "Preferences"]
+        [:p {:class "font-body leading-body text-sm text-muted-foreground"}
          "Examples of boolean and single-choice controls for notifications and settings."]]
 
-       [:div {:class "space-y-4"}
+       [:div {:class "gap-stack space-y-4"}
         [:div {:class "flex items-center gap-3 rounded-md px-3 py-2 hover:bg-accent/40"}
          (checkbox {:id "demo-terms"
                     :name "terms"
@@ -166,18 +171,18 @@
          (label {:for "demo-terms"
                  :text "I agree to receive service updates"})]
 
-        [:div {:class "flex items-center justify-between rounded-lg border p-4"}
+        [:div {:class "radius-lg border-theme flex items-center justify-between rounded-lg border p-4"}
          [:div {:class "space-y-1"}
-          [:div {:class "font-medium"} "Marketing emails"]
-          [:p {:class "text-sm text-muted-foreground"}
+          [:div {:class "font-heading leading-heading font-medium"} "Marketing emails"]
+          [:p {:class "font-body leading-body text-sm text-muted-foreground"}
            "Receive occasional updates about new features."]]
          (switch {:id "demo-marketing"
                   :name "marketing"})]
 
         [:div {:class "space-y-3"}
          [:div {:class "space-y-1"}
-          [:div {:class "font-medium"} "Notify me about…"]
-          [:p {:class "text-sm text-muted-foreground"}
+          [:div {:class "font-heading leading-heading font-medium"} "Notify me about…"]
+          [:p {:class "font-body leading-body text-sm text-muted-foreground"}
            "This is still a plain radio group for now; later this would be a good candidate for radio cards or segmented controls."]]
          (radio-group
           {:name "notify"
@@ -191,12 +196,12 @@
       (button {:variant :primary :text "Submit"})]})])
 
 (defn- disclosure-patterns-section []
-  [:section {:class "space-y-6 max-w-3xl mx-auto"}
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
    (section-heading
     "Disclosure Patterns"
     "Accordion variants showing single-open, multiple-open, and concise map-driven usage.")
 
-   [:div {:class "space-y-6"}
+   [:div {:class "gap-section space-y-6"}
     (card
      {:title "Single, not collapsible"
       :description "Good for a focused FAQ or settings group where one section should always remain open."
@@ -230,8 +235,8 @@
          {:value id
           :title title
           :content body})
-       [{:id :item-1 :title "One" :body [:p "A"]}
-        {:id :item-2 :title "Two" :body [:p "B"]}])})
+       [{:id :item-1 :title "One" :body [:p {:class "font-body leading-body"} "A"]}
+        {:id :item-2 :title "Two" :body [:p {:class "font-body leading-body"} "B"]}])})
 
     (card
      {:title "Simple map form"
@@ -239,21 +244,21 @@
       :content
       (accordion
        {:items [{:title "How does the layout work?"
-                 :content "We use a combination of a max-width container in ui/page and a CSS grid in the app function."
+                 :content [:p {:class "font-body leading-body"} "We use a combination of a max-width container in ui/page and a CSS grid in the app function."]
                  :open? true}
                 {:title "Are these native elements?"
-                 :content "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."
+                 :content [:p {:class "font-body leading-body"} "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."]
                  :open? true}
                 {:title "Can I use short-form maps?"
-                 :content "Absolutely. Most components support a map-based short form for cleaner code."}]})})]])
+                 :content [:p {:class "font-body leading-body"} "Absolutely. Most components support a map-based short form for cleaner code."]}]})})]])
 
 (defn- tabs-section []
-  [:section {:class "space-y-6 max-w-3xl mx-auto"}
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
    (section-heading
     "Tabs"
     "Layered sections of content shown one at a time, with a restrained Radix-inspired presentation.")
 
-   [:div {:class "space-y-6"}
+   [:div {:class "gap-section space-y-6"}
 
     (card
      {:title "Basic tabs"
@@ -269,10 +274,10 @@
 
        (tabs-content
         {:value :account}
-        [:div {:class "space-y-5"}
-         [:p {:class "text-sm text-muted-foreground"}
+        [:div {:class "gap-stack space-y-5"}
+         [:p {:class "font-body leading-body text-sm text-muted-foreground"}
           "Make changes to your account here. Click save when you're done."]
-         [:div {:class "space-y-4"}
+         [:div {:class "gap-stack space-y-4"}
           (field
            {:label-text "Name"
             :for "tabs-account-name"
@@ -288,10 +293,10 @@
 
        (tabs-content
         {:value :password}
-        [:div {:class "space-y-5"}
-         [:p {:class "text-sm text-muted-foreground"}
+        [:div {:class "gap-stack space-y-5"}
+         [:p {:class "font-body leading-body text-sm text-muted-foreground"}
           "Change your password here. After saving, you'll be logged out."]
-         [:div {:class "space-y-4"}
+         [:div {:class "gap-stack space-y-4"}
           (field
            {:label-text "Current password"
             :for "tabs-current-password"
@@ -325,8 +330,8 @@
 
        (tabs-content
         {:value :overview}
-        [:div {:class "space-y-3"}
-         [:p {:class "text-sm text-muted-foreground"}
+        [:div {:class "gap-stack space-y-3"}
+         [:p {:class "font-body leading-body text-sm text-muted-foreground"}
           "Overview content can stay light and summary-oriented."]
          [:div {:class "flex flex-wrap gap-2"}
           (badge {:variant :secondary :text "Healthy"})
@@ -335,8 +340,8 @@
 
        (tabs-content
         {:value :activity}
-        [:div {:class "space-y-3"}
-         [:p {:class "text-sm text-muted-foreground"}
+        [:div {:class "gap-stack space-y-3"}
+         [:p {:class "font-body leading-body text-sm text-muted-foreground"}
           "Recent activity, audit notes, or timeline-style information fits well here."]
          (alert
           {:title "Last update"
@@ -344,24 +349,24 @@
 
        (tabs-content
         {:value :access}
-        [:div {:class "space-y-4"}
-         [:p {:class "text-sm text-muted-foreground"}
+        [:div {:class "gap-stack space-y-4"}
+         [:p {:class "font-body leading-body text-sm text-muted-foreground"}
           "Permission-related controls are a natural tab use case."]
-         [:div {:class "flex items-center justify-between rounded-lg border p-4"}
+         [:div {:class "radius-lg border-theme flex items-center justify-between rounded-lg border p-4"}
           [:div {:class "space-y-1"}
-           [:div {:class "font-medium"} "Allow external invites"]
-           [:p {:class "text-sm text-muted-foreground"}
+           [:div {:class "font-heading leading-heading font-medium"} "Allow external invites"]
+           [:p {:class "font-body leading-body text-sm text-muted-foreground"}
             "Let members invite collaborators from outside the organization."]]
           (switch {:id "tabs-allow-invites"
                    :name "allow-invites"})]]))})]])
 
 (defn- dialogs-section []
-  [:section {:class "space-y-6 max-w-3xl mx-auto"}
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
    (section-heading
     "Dialogs"
     "Modal surfaces for confirmations, editing flows, and focused tasks.")
 
-   [:div {:class "space-y-6"}
+   [:div {:class "gap-section space-y-6"}
     (card
      {:title "Simple short form"
       :description "A dialog assembled from the root short form."
@@ -371,8 +376,8 @@
         :title "Edit profile"
         :description "Make changes to your profile here."
         :body
-        [:div {:class "space-y-4"}
-         [:p "This is the simplest way to use the dialog component."]
+        [:div {:class "gap-stack space-y-4"}
+         [:p {:class "font-body leading-body"} "This is the simplest way to use the dialog component."]
          (field
           {:label-text "Display name"
            :for "dialog-display-name"
@@ -382,31 +387,34 @@
         :footer
         [(dialog-close {:text "Cancel"})
          (button {:variant :primary :text "Save changes"})]})})
+
     (card
-      {:title "More complex dialog"
-       :description ""
-       :content (dialog
- {:trigger "Edit profile"
-  :title "Edit profile"
-  :description "Update account details."
-  :body
-  [:form {:class "space-y-6"}
-   (field
-    {:label-text "Display name"
-     :for "dialog-name"
-     :control (input {:id "dialog-name"
-                      :name "dialog-name"
-                      :placeholder "Jane Doe"})})
-   (field
-    {:label-text "Email"
-     :for "dialog-email"
-     :control (input {:type "email"
-                      :id "dialog-email"
-                      :name "dialog-email"
-                      :placeholder "jane@example.com"})})]
-  :footer
-  [(dialog-close {:text "Cancel"})
-   (button {:variant :primary :text "Save"})]})})
+     {:title "More complex dialog"
+      :description ""
+      :content
+      (dialog
+       {:trigger "Edit profile"
+        :title "Edit profile"
+        :description "Update account details."
+        :body
+        [:form {:class "gap-section space-y-6"}
+         (field
+          {:label-text "Display name"
+           :for "dialog-name"
+           :control (input {:id "dialog-name"
+                            :name "dialog-name"
+                            :placeholder "Jane Doe"})})
+         (field
+          {:label-text "Email"
+           :for "dialog-email"
+           :control (input {:type "email"
+                            :id "dialog-email"
+                            :name "dialog-email"
+                            :placeholder "jane@example.com"})})]
+        :footer
+        [(dialog-close {:text "Cancel"})
+         (button {:variant :primary :text "Save"})]})})
+
     (card
      {:title "Composed dialog"
       :description "The lower-level pieces can also be composed directly."
@@ -420,8 +428,9 @@
                                (dialog-description {}
                                                    "This action cannot be undone. This will permanently remove the request."))
                               (dialog-body
-                               [:div {:class "space-y-3"}
-                                [:p "Use the composed form when more control over layout is needed."]
+                               [:div {:class "gap-stack space-y-3"}
+                                [:p {:class "font-body leading-body"}
+                                 "Use the composed form when more control over layout is needed."]
                                 (alert {:variant :destructive
                                         :title "Warning"
                                         :content "Deleted requests cannot be recovered."})])
@@ -430,15 +439,13 @@
                                (button {:variant :destructive
                                         :text "Delete"}))))})]])
 
-
-
 (defn- dropdown-menus-section []
-  [:section {:class "space-y-6 max-w-3xl mx-auto"}
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
    (section-heading
     "Dropdown Menus"
     "Compact floating menus for actions, shortcuts, and grouped command lists.")
 
-   [:div {:class "space-y-6"}
+   [:div {:class "gap-section space-y-6"}
 
     (card
      {:title "Simple short form"
@@ -477,22 +484,14 @@
 (defn app [ctx]
   (ui/page
    ctx
-   [:div {:class "space-y-14"}
+   [:div {:class "gap-section space-y-14 font-body leading-body"}
     (hero-section)
     (core-surfaces-section)
     (form-controls-section)
     (disclosure-patterns-section)
     (dialogs-section)
     (dropdown-menus-section)
-    (tabs-section)
-    ]))
-
-
-
-
-
-
-
+    (tabs-section)]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
   (biffx/submit-tx ctx
@@ -501,25 +500,20 @@
   {:status 303
    :headers {"location" "/app"}})
 
-
-
-
-
-
 (defn bar-form [{:keys [value]}]
   (biff/form
-    {:hx-post "/app/set-bar"
-     :hx-swap "outerHTML"}
-    [:label.block {:for "bar"} "Bar: "
-     [:span.font-mono (pr-str value)]]
-    [:.h-1]
-    [:.flex
-     [:input.w-full#bar {:type "text" :name "bar" :value value}]
-     [:.w-3]
-     [:button.btn {:type "submit"} "Update"]]
-    [:.h-1]
-    [:.text-sm.text-gray-600
-     "This demonstrates updating a value with HTMX."]))
+   {:hx-post "/app/set-bar"
+    :hx-swap "outerHTML"}
+   [:label.block {:for "bar"} "Bar: "
+    [:span.font-mono (pr-str value)]]
+   [:.h-1]
+   [:.flex
+    [:input.w-full#bar {:type "text" :name "bar" :value value}]
+    [:.w-3]
+    [:button.btn {:type "submit"} "Update"]]
+   [:.h-1]
+   [:.text-sm.text-gray-600
+    "This demonstrates updating a value with HTMX."]))
 
 (defn set-bar [{:keys [session params] :as ctx}]
   (time (biffx/submit-tx ctx
@@ -534,8 +528,8 @@
 (defn notify-clients [{:keys [gessotest/chat-clients]} record]
   (when (= "msg" (:biff.xtdb/table record))
     (let [html (rum/render-static-markup
-                 [:div#messages {:hx-swap-oob "afterbegin"}
-                  (message record)])]
+                [:div#messages {:hx-swap-oob "afterbegin"}
+                 (message record)])]
       (doseq [ws @chat-clients]
         (ws/send ws html)))))
 
@@ -573,8 +567,6 @@
      [:div#messages
       (map message (sort-by :msg/sent-at #(compare %2 %1) messages))]]))
 
-
-
 (defn ws-handler [{:keys [gessotest/chat-clients] :as ctx}]
   {:status 101
    :headers {"upgrade" "websocket"
@@ -588,15 +580,15 @@
 
 (def about-page
   (ui/page
-    {:base/title (str "About " settings/app-name)}
-    [:p "This app was made with "
-     [:a.link {:href "https://biffweb.com"} "Biff"] "."]))
+   {:base/title (str "About " settings/app-name)}
+   [:p {:class "font-body leading-body"}
+    "This app was made with "
+    [:a.link {:href "https://biffweb.com"} "Biff"] "."]))
 
 (defn echo [{:keys [params]}]
   {:status 200
    :headers {"content-type" "application/json"}
    :body params})
-
 
 (def module
   {:static {"/about/" about-page}

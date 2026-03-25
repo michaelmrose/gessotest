@@ -1,13 +1,36 @@
 (ns gessotest.ui
-  (:require [cheshire.core :as cheshire]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [gessotest.settings :as settings]
             [com.biffweb :as biff]
-            [ring.middleware.anti-forgery :as csrf]
             [ring.util.response :as ring-response]
             [rum.core :as rum]
-            [gesso.theme :as gtheme :refer [theme]]
-            ))
+            [gesso.theme :refer [theme]]
+            [gesso.core :refer :all))
+
+(def default-theme
+  {:color-theme "cosmicnight"
+   :density "default"
+   :typography "ui"
+   :shape "default"})
+
+(def default-mode :dark)
+
+(def ^:private axis-specs
+  [{:axis :color-theme
+    :attr "data-color-theme"
+    :label "Color"}
+
+   {:axis :density
+    :attr "data-density"
+    :label "Density"}
+
+   {:axis :typography
+    :attr "data-typography"
+    :label "Typography"}
+
+   {:axis :shape
+    :attr "data-shape"
+    :label "Shape"}])
 
 (defn static-path [path]
   (if-some [last-modified (some-> (io/resource (str "public" path))
@@ -17,93 +40,180 @@
     (str path "?t=" last-modified)
     path))
 
+(defn- theme-css-resources []
+  (keep io/resource
+        ["public/gesso/themes.css"
+         "public/gesso/app-themes.css"]))
+
+(defn- options-from-css
+  [css attr]
+  (let [pattern (re-pattern
+                 (str "html(?:\\.dark)?\\["
+                      (java.util.regex.Pattern/quote attr)
+                      "~=\"([^\"]+)\"\\]"))]
+    (->> (re-seq pattern css)
+         (map second)
+         distinct
+         sort
+         vec)))
+
+(defn- discovered-theme-options []
+  (let [css-blobs (map slurp (theme-css-resources))]
+    (reduce
+     (fn [m {:keys [axis attr]}]
+       (let [discovered (->> css-blobs
+                             (mapcat #(options-from-css % attr))
+                             distinct
+                             sort
+                             vec)
+             fallback   (some-> (get default-theme axis) vector)]
+         (assoc m axis (or (not-empty discovered) fallback []))))
+     {}
+     axis-specs)))
+
+(defn- theme-state
+  [ctx]
+  {:color-theme (or (:color-theme ctx) (:data-color-theme ctx) (:color-theme default-theme))
+   :density (or (:density ctx) (:data-density ctx) (:density default-theme))
+   :typography (or (:typography ctx) (:data-typography ctx) (:typography default-theme))
+   :shape (or (:shape ctx) (:data-shape ctx) (:shape default-theme))
+   :mode (or (:mode ctx) (:data-color-theme-mode ctx) default-mode)})
+
+(defn- theme-select
+  [{:keys [label attr options selected]}]
+  [:label {:class "flex items-center gap-2 text-sm"}
+   [:span {:class "font-body leading-body"} label]
+   [:select
+    {:class "control-theme rounded-lg border-theme font-body bg-background text-foreground"
+     :_ (str "on change set document.documentElement's @" attr " to my value")}
+    (for [opt options]
+      [:option
+       (cond-> {:value opt}
+         (= opt selected) (assoc :selected true))
+       opt])]])
+
+(defn- theme-testing-bar
+  [{:keys [theme-options color-theme density typography shape]}]
+  [:div {:class "w-full border-b border-border bg-card text-card-foreground"}
+   [:div {:class "mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8"}
+    (button
+     {:text "Toggle dark/light"
+      :variant :outline
+      :attrs
+      {:type "button"
+       :_ "on click
+             if document.documentElement matches .dark
+               remove .dark from document.documentElement
+               set document.documentElement's @data-color-theme-mode to 'light'
+             else
+               add .dark to document.documentElement
+               set document.documentElement's @data-color-theme-mode to 'dark'
+             end"}})
+
+    (theme-select
+     {:label "Color"
+      :attr "data-color-theme"
+      :options (:color-theme theme-options)
+      :selected color-theme})
+
+    (theme-select
+     {:label "Density"
+      :attr "data-density"
+      :options (:density theme-options)
+      :selected density})
+
+    (theme-select
+     {:label "Typography"
+      :attr "data-typography"
+      :options (:typography theme-options)
+      :selected typography})
+
+    (theme-select
+     {:label "Shape"
+      :attr "data-shape"
+      :options (:shape theme-options)
+      :selected shape})]])
+
 (defn base [{:keys [::recaptcha] :as ctx} & body]
-  (apply
-   biff/base-html
-   (-> ctx
-       (merge
-         (theme "cosmicnight" :dark)
-         #:base{:title settings/app-name
-                :lang "en-US"
-                :icon "/img/glider.png"
-                :description (str settings/app-name " Description")
-                :image "https://clojure.org/images/clojure-logo-120b.png"})
-       (update :base/head
-               (fn [head]
-                 (concat
+  (let [{:keys [color-theme density typography shape mode]} (theme-state ctx)]
+    (apply
+     biff/base-html
+     (-> ctx
+         (merge
+          (theme {:color-theme color-theme
+                  :density density
+                  :typography typography
+                  :shape shape}
+                 mode)
+          #:base{:title settings/app-name
+                 :lang "en-US"
+                 :icon "/img/glider.png"
+                 :description (str settings/app-name " Description")
+                 :image "https://clojure.org/images/clojure-logo-120b.png"})
+         (update :base/head
+                 (fn [head]
+                   (concat
+                    head
+                    [[:script {:src (static-path "/js/gesso-theme.js")
+                               :defer true}]
 
-                  head
-
-                  ;; 3. Scripts and Stylesheets
-                  [[:script {:src (static-path "/js/gesso-theme.js")
-                            :defer true}]
-
-                   [:link {:rel "stylesheet"
-                           :href (static-path "/css/main.css")}]
-
-                   [:link {:rel "stylesheet"
-                           :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
-
-                   [:link {:rel "stylesheet"
-                           :href (static-path "/gesso/themes.css")}]
-
-                   ;; When local themes exist this file will be built by running bb themes
-                   (when (io/resource "public/gesso/app-themes.css")
                      [:link {:rel "stylesheet"
-                             :href (static-path "/gesso/app-themes.css")}])
+                             :href (static-path "/css/main.css")}]
 
-                   [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
-                             :defer true}]
+                     [:link {:rel "stylesheet"
+                             :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
 
-                   [:script {:src (static-path "/js/main.js")
-                             :defer true}]
+                     [:link {:rel "stylesheet"
+                             :href (static-path "/gesso/themes.css")}]
 
-                   ;; HTMX + extensions
-                   [:script {:src "https://unpkg.com/htmx.org@2.0.7"}]
-                   [:script {:src "https://unpkg.com/htmx-ext-ws@2.0.2/ws.js"}]
-                   [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
+                     (when (io/resource "public/gesso/app-themes.css")
+                       [:link {:rel "stylesheet"
+                               :href (static-path "/gesso/app-themes.css")}])
 
-                   ;; Optional: recaptcha
-                   (when recaptcha
-                     [:script {:src "https://www.google.com/recaptcha/api.js"
-                               :async "async"
-                               :defer "defer"}])]))))
-   body))
+                     [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
+                               :defer true}]
 
+                     [:script {:src (static-path "/js/main.js")
+                               :defer true}]
+
+                     [:script {:src "https://unpkg.com/htmx.org@2.0.7"}]
+                     [:script {:src "https://unpkg.com/htmx-ext-ws@2.0.2/ws.js"}]
+                     [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
+
+                     (when recaptcha
+                       [:script {:src "https://www.google.com/recaptcha/api.js"
+                                 :async "async"
+                                 :defer "defer"}])]))))
+     body)))
 
 (defn container
-  "A reusable wrapper that prevents content from stretching across ultra-wide monitors.
-   Use this to wrap groups of components or entire pages."
   [& children]
   (into [:div {:class "w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"}]
         children))
 
 (defn page
-  "The standard app layout shell.
-   Ensures the footer (if any) sticks to the bottom and the main content is centered."
   [ctx & body]
-  (base ctx
-        ;; The Outer App Shell (Flexbox to push footer down if page is short)
-        [:div {:class "min-h-screen flex flex-col"}
+  (let [theme-options (discovered-theme-options)
+        {:keys [color-theme density typography shape]} (theme-state ctx)]
+    (base ctx
+          [:div {:class "min-h-screen flex flex-col bg-background text-foreground"}
+           (theme-testing-bar
+            {:theme-options theme-options
+             :color-theme color-theme
+             :density density
+             :typography typography
+             :shape shape})
 
-         ;; (Optional) Header/Navbar would go here
-         ;; [:header {:class "w-full bg-white shadow-sm border-b p-4"} "My App"]
+           [:main {:class "flex-grow py-10"}
+            (apply container body)]])))
 
-         ;; The Constrained Main Content Area
-         [:main {:class "flex-grow py-10"}
-          (apply container body)]
-
-         ;; (Optional) Footer would go here
-         ;; [:footer {:class "text-center p-4 text-sm text-gray-500"} "© 2026"]
-         ]))
-
-(defn on-error [{:keys [status ex] :as ctx}]
+(defn on-error [{:keys [status] :as ctx}]
   {:status status
    :headers {"content-type" "text/html"}
    :body (rum/render-static-markup
           (page
            ctx
-           [:h1.text-lg.font-bold
+           [:h1 {:class "font-heading text-2xl"}
             (if (= status 404)
               "Page not found."
               "Something went wrong.")]))})
