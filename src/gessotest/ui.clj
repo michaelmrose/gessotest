@@ -4,7 +4,6 @@
             [com.biffweb :as biff]
             [ring.util.response :as ring-response]
             [rum.core :as rum]
-            [gesso.theme :refer [theme]]
             [gesso.core :refer :all]))
 
 (def default-theme
