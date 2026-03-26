@@ -140,6 +140,7 @@
      biff/base-html
      (-> ctx
          (merge
+
           (theme {:color-theme color-theme
                   :density density
                   :typography typography

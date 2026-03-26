@@ -480,6 +480,103 @@
                                                                 [:span "Switch workspace"])
                                             (dropdown-menu-item {}
                                                                 [:span "Sign out"])))})]])
+(defn- typography-section []
+  [:section {:class "section-theme max-w-4xl mx-auto"}
+   [:div {:class "space-y-2"}
+    (heading {:level 2 :text "Typography"})
+    (muted-text
+     {:as :p
+      :text "A realistic sample of heading, lead, body, muted, small, and label roles under the active typography theme."})]
+
+   (card
+    {:title "Article preview"
+     :description "A more realistic hierarchy test than listing heading variants one after another."
+     :content
+     [:article {:class "panel-theme"}
+      (page-title {:text "Human help, fast."})
+
+      (text
+       {:variant :lead
+        :text "Customers should be able to request help quickly, see that someone is coming, and keep moving without friction."})
+
+      (heading
+       {:level 3
+        :text "Why hierarchy matters"})
+
+      (text
+       {:variant :body
+        :text "A typography system should not rely on size alone. Good hierarchy also comes from line-height, weight, contrast, and spacing. If those things are working, a page feels easier to scan even before you consciously notice why."})
+
+      (muted-text
+       {:as :p
+        :text "Updated 2 hours ago · Seattle flagship · 3 staff online"})
+
+      (text
+       {:variant :small
+        :text "Small text is useful for secondary metadata and compact explanatory copy."})
+
+      [:div {:class "cluster-theme items-center"}
+       (label-text {:text "Status"})
+       (badge {:variant :outline :text "Active"})]]
+
+     :footer
+     [:div {:class "cluster-theme justify-end"}
+      (button {:variant :outline :text "Secondary"})
+      (button {:variant :primary :text "Primary"})]})])
+#_(defn- typography-section []
+  [:section {:class "section-theme max-w-4xl mx-auto"}
+   (section-title {:text "Typography"}
+                  )
+   (muted-text
+    {:as :p
+     :text "A quick proof that typography tokens and text helpers are working without hand-styling every element."})
+
+   (card
+    {:title "Text helpers"
+     :description "This section exercises heading and text roles against the active typography theme."
+     :content
+     [:div {:class "panel-theme"}
+
+      (page-title {:text "Page title example"})
+
+      (section-title {:text "Section title example"})
+
+      (heading
+       {:level 3
+        :text "Level 3 heading with default sizing"})
+
+      (heading
+       {:level 4
+        :size :xl
+        :text "Semantically h4, visually larger"})
+
+      (text
+       {:variant :lead
+        :text "Lead text gives you a stronger introductory paragraph without manually assembling font, size, and leading classes."})
+
+      (text
+       {:variant :body
+        :text "Body text should follow the active body font, size, and line-height from the typography theme."})
+
+      (muted-text
+       {:text "Muted text is useful for metadata, descriptions, and supporting copy."})
+
+      (text
+       {:variant :small
+        :text "Small text works for compact supporting information."})
+
+      (text
+       {:variant :caption
+        :text "Caption text is the quietest role in the set."})
+
+      [:div {:class "cluster-theme items-center"}
+       (label-text {:text "Label text"})
+       (badge {:variant :outline :text "Example"})]]
+
+     :footer
+     [:div {:class "cluster-theme justify-end"}
+      (button {:variant :outline :text "Secondary"})
+      (button {:variant :primary :text "Primary"})]})])
 
 (defn app [ctx]
   (ui/page
@@ -491,7 +588,9 @@
     (disclosure-patterns-section)
     (dialogs-section)
     (dropdown-menus-section)
-    (tabs-section)]))
+    (tabs-section)
+    (typography-section)
+    ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
   (biffx/submit-tx ctx
