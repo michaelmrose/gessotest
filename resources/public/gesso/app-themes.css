@@ -104,6 +104,8 @@ html.dark[data-color-theme~="cosmicnight"] {
 
 /* semantic theme utilities */
 
+/* typography */
+
 .font-body { font-family: var(--font-body); }
 .font-heading { font-family: var(--font-heading); }
 
@@ -117,13 +119,83 @@ html.dark[data-color-theme~="cosmicnight"] {
 .tracking-body { letter-spacing: var(--tracking-body); }
 .tracking-heading { letter-spacing: var(--tracking-heading); }
 
+/* density */
+
+.control-theme {
+  min-height: var(--control-height);
+  padding-inline: var(--control-px, 0.875rem);
+  padding-block: var(--control-py, 0.625rem);
+}
+
+.button-density {
+  padding-inline: var(--button-px, var(--control-px, 0.875rem));
+  padding-block: var(--button-py, var(--control-py, 0.625rem));
+}
+
 .pad-card { padding: var(--card-padding); }
 .pad-dialog { padding: var(--dialog-padding); }
+.pad-container { padding-inline: var(--container-px, 1.5rem); }
 
 .gap-stack { gap: var(--stack-gap); }
 .gap-section { gap: var(--section-gap); }
+.gap-inline { gap: var(--inline-gap, var(--stack-gap)); }
+.gap-cluster { gap: var(--cluster-gap, var(--stack-gap)); }
+.gap-field { gap: var(--field-gap, 0.5rem); }
+.gap-form { gap: var(--form-gap, var(--stack-gap)); }
+.gap-list { gap: var(--list-gap, 0.5rem); }
+.gap-panel { gap: var(--panel-gap, var(--stack-gap)); }
+.gap-toolbar { gap: var(--toolbar-gap, var(--cluster-gap, var(--stack-gap))); }
 
-.h-control { min-height: var(--control-height); }
+.stack-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--stack-gap);
+}
+
+.section-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+}
+
+.cluster-theme {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cluster-gap, var(--stack-gap));
+}
+
+.toolbar-theme {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--toolbar-gap, var(--cluster-gap, var(--stack-gap)));
+}
+
+.field-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-gap, 0.5rem);
+}
+
+.form-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-gap, var(--stack-gap));
+}
+
+.list-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--list-gap, 0.5rem);
+}
+
+.panel-theme {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap, var(--stack-gap));
+}
+
+/* shape */
 
 .radius-sm { border-radius: var(--radius-sm); }
 .radius-md { border-radius: var(--radius-md); }

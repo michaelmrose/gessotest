@@ -5,7 +5,7 @@
             [ring.util.response :as ring-response]
             [rum.core :as rum]
             [gesso.theme :refer [theme]]
-            [gesso.core :refer :all))
+            [gesso.core :refer :all]))
 
 (def default-theme
   {:color-theme "cosmicnight"
@@ -81,10 +81,10 @@
 
 (defn- theme-select
   [{:keys [label attr options selected]}]
-  [:label {:class "flex items-center gap-2 text-sm"}
-   [:span {:class "font-body leading-body"} label]
+  [:label {:class "flex items-center gap-2 text-sm font-body leading-body"}
+   [:span {:class "text-foreground/80"} label]
    [:select
-    {:class "control-theme rounded-lg border-theme font-body bg-background text-foreground"
+    {:class "select control-theme rounded-lg border-theme bg-background text-foreground"
      :_ (str "on change set document.documentElement's @" attr " to my value")}
     (for [opt options]
       [:option
@@ -192,20 +192,19 @@
         children))
 
 (defn page
+  "The standard app layout shell.
+   Includes a theme testing bar and centers the main content."
   [ctx & body]
-  (let [theme-options (discovered-theme-options)
-        {:keys [color-theme density typography shape]} (theme-state ctx)]
+  (let [theme-options (discovered-theme-options)]
     (base ctx
           [:div {:class "min-h-screen flex flex-col bg-background text-foreground"}
            (theme-testing-bar
-            {:theme-options theme-options
-             :color-theme color-theme
-             :density density
-             :typography typography
-             :shape shape})
+            (merge default-theme
+                   {:theme-options theme-options}))
 
            [:main {:class "flex-grow py-10"}
             (apply container body)]])))
+
 
 (defn on-error [{:keys [status] :as ctx}]
   {:status status
