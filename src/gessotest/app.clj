@@ -235,8 +235,8 @@
          {:value id
           :title title
           :content body})
-       [{:id :item-1 :title "One" :body [:p {:class "font-body leading-body"} "A"]}
-        {:id :item-2 :title "Two" :body [:p {:class "font-body leading-body"} "B"]}])})
+       [{:id :item-1 :title "One" :body [:p "A"]}
+        {:id :item-2 :title "Two" :body [:p "B"]}])})
 
     (card
      {:title "Simple map form"
@@ -244,13 +244,13 @@
       :content
       (accordion
        {:items [{:title "How does the layout work?"
-                 :content [:p {:class "font-body leading-body"} "We use a combination of a max-width container in ui/page and a CSS grid in the app function."]
+                 :content [:p "We use a combination of a max-width container in ui/page and a CSS grid in the app function."]
                  :open? true}
                 {:title "Are these native elements?"
-                 :content [:p {:class "font-body leading-body"} "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."]
+                 :content [:p "Yes. The accordion uses HTML details and summary, styled by Basecoat and enhanced with a little hyperscript."]
                  :open? true}
                 {:title "Can I use short-form maps?"
-                 :content [:p {:class "font-body leading-body"} "Absolutely. Most components support a map-based short form for cleaner code."]}]})})]])
+                 :content [:p "Absolutely. Most components support a map-based short form for cleaner code."]}]})})]])
 
 (defn- tabs-section []
   [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
@@ -523,60 +523,7 @@
      [:div {:class "cluster-theme justify-end"}
       (button {:variant :outline :text "Secondary"})
       (button {:variant :primary :text "Primary"})]})])
-#_(defn- typography-section []
-  [:section {:class "section-theme max-w-4xl mx-auto"}
-   (section-title {:text "Typography"}
-                  )
-   (muted-text
-    {:as :p
-     :text "A quick proof that typography tokens and text helpers are working without hand-styling every element."})
 
-   (card
-    {:title "Text helpers"
-     :description "This section exercises heading and text roles against the active typography theme."
-     :content
-     [:div {:class "panel-theme"}
-
-      (page-title {:text "Page title example"})
-
-      (section-title {:text "Section title example"})
-
-      (heading
-       {:level 3
-        :text "Level 3 heading with default sizing"})
-
-      (heading
-       {:level 4
-        :size :xl
-        :text "Semantically h4, visually larger"})
-
-      (text
-       {:variant :lead
-        :text "Lead text gives you a stronger introductory paragraph without manually assembling font, size, and leading classes."})
-
-      (text
-       {:variant :body
-        :text "Body text should follow the active body font, size, and line-height from the typography theme."})
-
-      (muted-text
-       {:text "Muted text is useful for metadata, descriptions, and supporting copy."})
-
-      (text
-       {:variant :small
-        :text "Small text works for compact supporting information."})
-
-      (text
-       {:variant :caption
-        :text "Caption text is the quietest role in the set."})
-
-      [:div {:class "cluster-theme items-center"}
-       (label-text {:text "Label text"})
-       (badge {:variant :outline :text "Example"})]]
-
-     :footer
-     [:div {:class "cluster-theme justify-end"}
-      (button {:variant :outline :text "Secondary"})
-      (button {:variant :primary :text "Primary"})]})])
 
 (defn app [ctx]
   (ui/page
