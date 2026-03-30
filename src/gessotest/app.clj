@@ -525,6 +525,96 @@
       (button {:variant :primary :text "Primary"})]})])
 
 
+
+
+(defn- empty-states-section []
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Empty States"
+    "Reusable placeholders for empty lists, filtered views, and waiting regions.")
+
+   [:div {:class "gap-section space-y-6"}
+    (card
+     {:title "Simple empty state"
+      :description "Short-form usage with an optional decorative icon, title, description, and one action."
+      :content
+      (empty-state
+        {:icon (empty-state-icon)
+        :title "No waiting requests"
+        :description "New requests will appear here as customers ask for help."
+        :action (button {:variant :outline :text "Refresh"})})})
+
+    (card
+     {:title "Composed empty state"
+      :description "Long-form usage with explicit subcomponents and multiple actions."
+      :content
+      (empty-state {}
+                   [:div {:class "flex items-center justify-center"
+                          :style {:color "var(--muted-foreground)"}}
+                    (empty-state-icon)
+                    ]
+                   (empty-state-title "No search results")
+                   (empty-state-description
+                    "Try a broader query or clear your current filters.")
+                   (empty-state-actions
+                    (button {:variant :outline :text "Clear filters"})
+                    (button {:variant :primary :text "Create request"})))})]])
+
+(defn- icons-section []
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Icons"
+    "Vendored Lucide SVGs plus a small wrapper for consistent sizing and accessibility.")
+
+   [:div {:class "gap-section space-y-6"}
+    (card
+     {:title "Lucide icons"
+      :description "Direct icon lookup from the vendored Lucide set."
+      :content
+      [:div {:class "cluster-theme items-center"}
+       [:div {:class "flex items-center gap-inline"}
+        (lucide "inbox")
+        [:span "Inbox"]]
+       [:div {:class "flex items-center gap-inline"}
+        (lucide "search")
+        [:span "Search"]]
+       [:div {:class "flex items-center gap-inline"}
+        (lucide "alert-triangle")
+        [:span "Alert triangle"]]]})
+
+    (card
+     {:title "Icon wrapper"
+      :description "Wrap arbitrary icon nodes with shared sizing."
+      :content
+      [:div {:class "cluster-theme items-center"}
+       [:div {:class "flex items-center gap-inline"}
+        (icon (lucide "inbox"))
+        [:span "Default icon wrapper"]]
+       [:div {:class "flex items-center gap-inline"}
+        (icon {:node (lucide "search")
+               :size :sm})
+        [:span "Small wrapped icon"]]
+       [:div {:class "flex items-center gap-inline"}
+        (icon {:node (lucide "alert-triangle")
+               :title "Warning"})
+        [:span "Accessible titled icon"]]]})
+
+    (card
+     {:title "In context"
+      :description "Icons used inside other components."
+      :content
+      [:div {:class "space-y-4"}
+       (empty-state
+        {:icon (icon (lucide "inbox"))
+         :title "No messages"
+         :description "When a region is empty, a simple decorative icon can help without dominating the content."
+         :action (button {:variant :outline :text "Refresh"})})
+       [:div {:class "flex items-center gap-inline"}
+        (icon {:node (lucide "check")
+               :size :sm})
+        [:span "A small success-style icon inline with text"]]]})]])
+
+
 (defn app [ctx]
   (ui/page
    ctx
@@ -537,6 +627,8 @@
     (dropdown-menus-section)
     (tabs-section)
     (typography-section)
+    (empty-states-section)
+    (icon-section)
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
