@@ -670,6 +670,59 @@
        (status-pill {:status :success}
                     "Synced") ]})]])
 
+(defn- groups-section []
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Groups"
+    "A generic grouping primitive for related actions, pills, and inline controls, with optional attached styling.")
+
+   [:div {:class "gap-section space-y-6"}
+    (card
+     {:title "Default group"
+      :description "A simple wrapping cluster of related actions."
+      :content
+      (group {}
+             (button {:variant :outline :text "Cancel"})
+             (button {:variant :primary :text "Save"})
+             (button {:variant :ghost :text "Duplicate"}))})
+
+    (card
+     {:title "Aligned group"
+      :description "Groups can align their contents without needing ad hoc wrapper divs."
+      :content
+      (group {:align :end}
+             (button {:variant :outline :text "Back"})
+             (button {:variant :primary :text "Continue"}))})
+
+    (card
+     {:title "Attached buttons"
+      :description "Attached groups visually join adjacent controls into a single compound control."
+      :content
+      (group {:attached? true}
+             (button {:variant :outline :text "Day"})
+             (button {:variant :outline :text "Week"})
+             (button {:variant :outline :text "Month"}))})
+
+    (card
+     {:title "Attached vertical group"
+      :description "Attachment also works vertically for stacked segmented controls."
+      :content
+      (group {:attached? true
+              :orientation :vertical
+              :class "max-w-xs"}
+             (button {:variant :outline :text "Profile"})
+             (button {:variant :outline :text "Notifications"})
+             (button {:variant :outline :text "Security"}))})
+
+    (card
+     {:title "Mixed content"
+      :description "Groups are not limited to buttons and can be used for any related inline UI."
+      :content
+      (group {}
+             (status-pill {:status :success :icon "check"})
+             (status-pill {:status :warning :dot? true})
+             [:span {:class "font-body text-sm-theme leading-body"} "3 items selected"])})]])
+
 (defn app [ctx]
   (ui/page
    ctx
@@ -685,6 +738,7 @@
     (empty-states-section)
     (icons-section)
     (status-pills-section)
+    (groups-section)
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
