@@ -723,6 +723,43 @@
              (status-pill {:status :warning :dot? true})
              [:span {:class "font-body text-sm-theme leading-body"} "3 items selected"])})]])
 
+
+(defn- section-blocks-section []
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Section Blocks"
+    "Structured page sections with optional description, actions, and body content, without forcing a card-like surface.")
+
+   [:div {:class "gap-section space-y-6"}
+    (section-block
+      {:title "Waiting requests"
+       :description "Requests that have not yet been claimed."
+       :actions [(button {:variant :outline :text "Refresh"})]
+       :content [[:div {:class "panel-theme"}
+                  (status-pill {:status :waiting :dot? true})
+                  (text {:as :p
+                         :variant :muted
+                         :text "No requests are currently waiting."})]]})
+
+    card
+    (section-block {}
+                   (section-block-header {}
+                                         [:div {:class "flex flex-col gap-field"}
+                                          (section-block-title "Active work")
+                                          (section-block-description
+                                            "Items currently assigned to the employee.")]
+                                         (section-block-actions
+                                           (button {:variant :outline :text "Filter"})
+                                           (button {:variant :primary :text "Create"})))
+                   (section-block-content
+                     [:div {:class "panel-theme"}
+                      (group {}
+                             (status-pill {:status :active})
+                             (status-pill {:status :claimed :text "Yours"}))
+                      (text {:as :p
+                             :variant :muted
+                             :text "This area can hold lists, cards, metrics, or live-updating fragments."})]))]])
+
 (defn app [ctx]
   (ui/page
    ctx
@@ -739,6 +776,7 @@
     (icons-section)
     (status-pills-section)
     (groups-section)
+    (section-blocks-section)
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
