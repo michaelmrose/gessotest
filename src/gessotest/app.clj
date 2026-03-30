@@ -560,60 +560,115 @@
                     (button {:variant :outline :text "Clear filters"})
                     (button {:variant :primary :text "Create request"})))})]])
 
+
 (defn- icons-section []
   [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
    (section-heading
     "Icons"
-    "Vendored Lucide SVGs plus a small wrapper for consistent sizing and accessibility.")
+    "Inline SVG icons resolved by name from the current icon search paths, with theme sizes and optional explicit sizing.")
 
    [:div {:class "gap-section space-y-6"}
     (card
-     {:title "Lucide icons"
-      :description "Direct icon lookup from the vendored Lucide set."
+     {:title "Theme sizes"
+      :description "The icon component supports xs, sm, md, lg, xl, and 2xl semantic sizes."
       :content
       [:div {:class "cluster-theme items-center"}
-       [:div {:class "flex items-center gap-inline"}
-        (lucide "inbox")
-        [:span "Inbox"]]
-       [:div {:class "flex items-center gap-inline"}
-        (lucide "search")
-        [:span "Search"]]
-       [:div {:class "flex items-center gap-inline"}
-        (lucide "alert-triangle")
-        [:span "Alert triangle"]]]})
+       (icon "search" {:size :xs})
+       (icon "search" {:size :sm})
+       (icon "search" {:size :md})
+       (icon "search" {:size :lg})
+       (icon "search" {:size :xl})
+       (icon "search" {:size :2xl})]})
 
     (card
-     {:title "Icon wrapper"
-      :description "Wrap arbitrary icon nodes with shared sizing."
+     {:title "Different icons"
+      :description "Any icon name available in the current project or bundled fallback set can be rendered the same way."
       :content
       [:div {:class "cluster-theme items-center"}
-       [:div {:class "flex items-center gap-inline"}
-        (icon (lucide "inbox"))
-        [:span "Default icon wrapper"]]
-       [:div {:class "flex items-center gap-inline"}
-        (icon {:node (lucide "search")
-               :size :sm})
-        [:span "Small wrapped icon"]]
-       [:div {:class "flex items-center gap-inline"}
-        (icon {:node (lucide "alert-triangle")
-               :title "Warning"})
-        [:span "Accessible titled icon"]]]})
+       (icon "search" {:size :lg})
+       (icon "inbox" {:size :lg})
+       (icon "alert-triangle" {:size :lg})
+       (icon "check" {:size :lg})
+       (icon "x" {:size :lg})
+       (icon "chevron-down" {:size :lg})]})
 
     (card
-     {:title "In context"
-      :description "Icons used inside other components."
+     {:title "Explicit sizing"
+      :description "You can override semantic sizes with a square :size or explicit :width and :height."
       :content
-      [:div {:class "space-y-4"}
-       (empty-state
-        {:icon (icon (lucide "inbox"))
-         :title "No messages"
-         :description "When a region is empty, a simple decorative icon can help without dominating the content."
-         :action (button {:variant :outline :text "Refresh"})})
-       [:div {:class "flex items-center gap-inline"}
-        (icon {:node (lucide "check")
-               :size :sm})
-        [:span "A small success-style icon inline with text"]]]})]])
+      [:div {:class "cluster-theme items-center"}
+       (icon "inbox" {:size "1.5rem"})
+       (icon "inbox" {:size 28})
+       (icon "inbox" {:size "28px"})
+       (icon "alert-triangle" {:width "4.25rem" :height "4.75rem"})
+       (icon "search" {:width "2rem" :height "1.25rem"})]})
 
+    (card
+     {:title "Inside controls and text"
+      :description "Icons compose naturally with buttons and other inline UI."
+      :content
+      [:div {:class "cluster-theme items-center"}
+       (button {}
+               (icon "search" {:size :sm})
+               [:span "Search"])
+       (button {:variant :outline}
+               (icon "inbox" {:size :sm})
+               [:span "Inbox"])
+       [:div {:class "cluster-theme items-center"}
+        (icon "check" {:size :sm})
+        (text {:variant :muted
+               :as :span
+               :text "Synced"})]]})
+
+    (card
+     {:title "Accessible title"
+      :description "Icons are decorative by default. Supplying :title exposes the icon as an image with a title."
+      :content
+      [:div {:class "cluster-theme items-center"}
+       (icon "check" {:title "Success"})
+       (icon "alert-triangle" {:title "Warning"})
+       (icon "search" {:title "Search"})]})]])
+
+(defn- status-pills-section []
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Status Pills"
+    "Compact inline state indicators for queues, ownership, and live-updating task state.")
+
+   [:div {:class "gap-section space-y-6"}
+    (card
+     {:title "Semantic statuses"
+      :description "Core semantic variants for neutral, informative, successful, warning, and destructive states."
+      :content
+      [:div {:class "cluster-theme items-center"}
+       (status-pill {:status :default})
+       (status-pill {:status :muted})
+       (status-pill {:status :info})
+       (status-pill {:status :success})
+       (status-pill {:status :warning})
+       (status-pill {:status :destructive})]})
+
+    (card
+     {:title "Friendly aliases"
+      :description "Aliases map common workflow states onto the semantic variants."
+      :content
+      [:div {:class "cluster-theme items-center"}
+       (status-pill {:status :waiting :dot? true})
+       (status-pill {:status :active})
+       (status-pill {:status :claimed})
+       (status-pill {:status :complete :icon "check"})
+       (status-pill {:status :cancelled})
+       (status-pill {:status :error :icon "alert-triangle"})]})
+
+    (card
+     {:title "Explicit labels"
+      :description "You can override the default label or use long-form content."
+      :content
+      [:div {:class "cluster-theme items-center"}
+       (status-pill {:status :info :text "Yours"})
+       (status-pill {:status :warning :text "Needs review" :icon "alert-triangle"})
+       (status-pill {:status :success}
+                    "Synced") ]})]])
 
 (defn app [ctx]
   (ui/page
@@ -628,7 +683,8 @@
     (tabs-section)
     (typography-section)
     (empty-states-section)
-    (icon-section)
+    (icons-section)
+    (status-pills-section)
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
