@@ -11,6 +11,263 @@
    [tick.core :as tick]
    [gesso.core :as gs :refer :all ]))
 
+(defn- page-demo-nav []
+  (group {}
+         [:a {:href "/app"
+              :class "font-body text-sm-theme leading-body weight-medium-theme"
+              :style {:color "var(--primary)"}}
+          "Back to gallery"]
+         [:a {:href "/app#pages"
+              :class "font-body text-sm-theme leading-body weight-medium-theme"
+              :style {:color "var(--primary)"}}
+          "Back to pages section"]))
+
+(defn- page-demo-header
+  [title description]
+  [:div {:class "section-theme"}
+   (page-demo-nav)
+   [:header {:class "stack-theme"}
+    [:h1 {:class "font-heading text-3xl-theme leading-tight-theme tracking-tight-theme weight-bold-theme"}
+     title]
+    [:p {:class "font-body text-base-theme leading-body"
+         :style {:color "var(--muted-foreground)"}}
+     description]]])
+
+(defn- plain-surface
+  [& children]
+  (into
+   [:section {:class "panel-theme pad-card radius-lg"
+              :style {:border (str "var(--border-width, 1px) solid var(--border)")
+                      :background "var(--card)"
+                      :color "var(--card-foreground)"}}]
+   children))
+
+(defn- rail-block
+  [title & body]
+  (into
+   [:section {:class "stack-theme"}
+    [:h2 {:class "font-heading text-lg-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+     title]]
+   body))
+
+(defn- content-block
+  [title & body]
+  (into
+   [:section {:class "stack-theme"}
+    [:h2 {:class "font-heading text-xl-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+     title]]
+   body))
+
+(defn page-focused
+  [ctx]
+  (ui/page-shell
+   ctx
+   (page {:variant :focused}
+         (page-main
+          (page-surface
+           (page-demo-header
+            "Focused page"
+            "A centered page with one continuous work surface.")
+           (toolbar {}
+                    (toolbar-start
+                     (status-pill {:status :active})
+                     (status-pill {:status :claimed :text "Yours"}))
+                    (toolbar-end
+                     (button {:variant :outline :text "Refresh"})
+                     (button {:variant :primary :text "Create"})))
+           (content-block
+            "Primary content"
+            [:p {:class "font-body text-base-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "Use this for settings pages, detail pages, and forms where the page should read like one coherent sheet."]
+            (empty-state
+             {:title "No active items"
+              :description "This layout keeps attention centered on the main work area."
+              :action (button {:variant :outline :text "Refresh"})})))))))
+
+(defn page-wide-focused
+  [ctx]
+  (ui/page-shell
+   ctx
+   (page {:variant :wide-focused}
+         (page-main
+          (page-surface
+           (page-demo-header
+            "Wide focused page"
+            "A wider centered lane for denser layouts that still want one main plane.")
+           (toolbar {}
+                    (toolbar-start
+                     (button {:variant :outline :text "Back"})
+                     (button {:variant :outline :text "Duplicate"}))
+                    (toolbar-center
+                     (group {:attached? true}
+                            (button {:variant :outline :text "Day"})
+                            (button {:variant :outline :text "Week"})
+                            (button {:variant :outline :text "Month"})))
+                    (toolbar-end
+                     (button {:variant :primary :text "Save"})))
+           [:section {:class "grid gap-panel md:grid-cols-2"}
+            (plain-surface
+             (content-block
+              "Left block"
+              [:p {:class "font-body text-sm-theme leading-body"
+                   :style {:color "var(--muted-foreground)"}}
+               "A wide focused page can comfortably hold denser two-up content without becoming a true app shell."]))
+            (plain-surface
+             (content-block
+              "Right block"
+              [:p {:class "font-body text-sm-theme leading-body"
+                   :style {:color "var(--muted-foreground)"}}
+               "This works well for broad settings, detail, and operational pages."]))])))))
+
+(defn page-sidebar-main
+  [ctx]
+  (ui/page-shell
+   ctx
+   (page {:variant :sidebar-main}
+         (page-left
+          [:div {:class "section-theme"}
+           (rail-block
+            "Sidebar"
+            [:p {:class "font-body text-sm-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "Use this region for navigation, saved views, or filters."]
+            [:nav {:class "list-theme"}
+             [:a {:href "#"
+                  :style {:color "var(--primary)"}} "Overview"]
+             [:a {:href "#"
+                  :style {:color "var(--primary)"}} "Assigned"]
+             [:a {:href "#"
+                  :style {:color "var(--primary)"}} "Completed"]])])
+         (page-main
+          (page-surface
+           (page-demo-header
+            "Sidebar + main"
+            "A left rail for navigation or filters with a main work surface.")
+           (toolbar {}
+                    (toolbar-start
+                     (button {:variant :outline :text "Filter"})
+                     (button {:variant :outline :text "Sort"}))
+                    (toolbar-end
+                     (button {:variant :primary :text "Create"})))
+           (content-block
+            "Main content"
+            [:p {:class "font-body text-base-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "This is a strong default for admin screens and list/detail workflows where persistent side controls matter."]))))))
+
+(defn page-main-rail
+  [ctx]
+  (ui/page-shell
+   ctx
+   (page {:variant :main-rail}
+         (page-main
+          (page-surface
+           (page-demo-header
+            "Main + rail"
+            "A dominant main work area with a contextual right rail.")
+           (content-block
+            "Main work area"
+            [:p {:class "font-body text-base-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "The central region remains dominant, while the rail stays clearly secondary."]
+            (group {}
+                   (status-pill {:status :active})
+                   (status-pill {:status :warning :dot? true})
+                   (status-pill {:status :success :icon "check"})))))
+         (page-right
+          [:div {:class "section-theme"}
+           (rail-block
+            "Right rail"
+            [:p {:class "font-body text-sm-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "Good for summaries, activity, assignment details, or compact actions."]
+            (group {:orientation :vertical}
+                   (button {:variant :outline :text "Refresh"})
+                   (button {:variant :outline :text "Escalate"})
+                   (button {:variant :primary :text "Complete"})))]))))
+
+(defn page-three-column
+  [ctx]
+  (ui/page-shell
+   ctx
+   (page {:variant :three-column}
+         (page-left
+          [:div {:class "section-theme"}
+           (rail-block
+            "Left"
+            [:p {:class "font-body text-sm-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "Navigation, filters, or saved views."]
+            [:nav {:class "list-theme"}
+             [:a {:href "#"
+                  :style {:color "var(--primary)"}} "Queue"]
+             [:a {:href "#"
+                  :style {:color "var(--primary)"}} "Active"]
+             [:a {:href "#"
+                  :style {:color "var(--primary)"}} "History"]])])
+         (page-main
+          (page-surface
+           (page-demo-header
+            "Three-column page"
+            "A true app-style layout where all three regions are active.")
+           (content-block
+            "Main content"
+            [:p {:class "font-body text-base-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "Use this when both side regions are first-class parts of the workflow, not just decorative gutters."])))
+         (page-right
+          [:div {:class "section-theme"}
+           (rail-block
+            "Right"
+            [:p {:class "font-body text-sm-theme leading-body"
+                 :style {:color "var(--muted-foreground)"}}
+             "Inspectors, activity, or contextual details."]
+            (group {:orientation :vertical}
+                   (status-pill {:status :claimed :text "Yours"})
+                   (status-pill {:status :warning :dot? true})
+                   (status-pill {:status :success :icon "check"})))]))))
+
+(defn page-full
+  [ctx]
+  (ui/page-shell
+   ctx
+   (page {:variant :full}
+         (page-main
+          [:div {:class "section-theme pad-container"}
+           (page-demo-header
+            "Full page"
+            "A broad layout for dashboards and denser operational screens.")
+           (toolbar {}
+                    (toolbar-start
+                     (button {:variant :outline :text "Refresh"})
+                     (button {:variant :outline :text "Filter"})
+                     (button {:variant :outline :text "Export"}))
+                    (toolbar-spacer)
+                    (toolbar-end
+                     (button {:variant :primary :text "Create"})))
+           [:section {:class "grid gap-panel md:grid-cols-2 xl:grid-cols-3"}
+            (plain-surface
+             (content-block
+              "Summary A"
+              [:p {:class "font-body text-sm-theme leading-body"
+                   :style {:color "var(--muted-foreground)"}}
+               "A broad page can still use smaller surfaced blocks inside the full-width layout."]))
+            (plain-surface
+             (content-block
+              "Summary B"
+              [:p {:class "font-body text-sm-theme leading-body"
+                   :style {:color "var(--muted-foreground)"}}
+               "This variant is for genuinely wide screens, not just a slightly larger centered column."]))
+            (plain-surface
+             (content-block
+              "Summary C"
+              [:p {:class "font-body text-sm-theme leading-body"
+                   :style {:color "var(--muted-foreground)"}}
+               "Use it when the screen truly benefits from a broader layout."]))]]))))
+
+
+
 (defn- section-heading
   [title description]
   [:div {:class "text-center space-y-2"}
@@ -760,6 +1017,112 @@
                              :variant :muted
                              :text "This area can hold lists, cards, metrics, or live-updating fragments."})]))]])
 
+(defn- toolbars-section []
+  [:section {:class "gap-section space-y-6 max-w-4xl mx-auto"}
+   (section-heading
+    "Toolbars"
+    "Local control rows for search, filters, status, and actions, with optional center and spacer regions.")
+
+   [:div {:class "gap-section space-y-6"}
+    (card
+     {:title "Short-form toolbar"
+      :description "A compact controls row with start, center, and end regions."
+      :content
+      (toolbar
+       {:start [(button {:variant :outline :text "Refresh"})
+                (button {:variant :outline :text "Filter"})]
+        :center [(status-pill {:status :active})
+                 (status-pill {:status :claimed :text "Yours"})]
+        :end [(button {:variant :primary :text "Create request"})]})})
+
+    (card
+     {:title "Toolbar with spacer"
+      :description "The spacer pushes trailing actions away without hand-written flex filler divs."
+      :content
+      (toolbar {}
+               (toolbar-start
+                (button {:variant :outline :text "Back"})
+                (button {:variant :outline :text "Duplicate"}))
+               (toolbar-spacer)
+               (toolbar-end
+                (button {:variant :outline :text "Cancel"})
+                (button {:variant :primary :text "Save"})))})
+
+    (card
+     {:title "Centered controls"
+      :description "The center region works well for view switches or contextual controls."
+      :content
+      (toolbar {}
+               (toolbar-start
+                (text {:variant :muted
+                       :as :span
+                       :text "Showing 24 results"}))
+               (toolbar-center
+                (group {:attached? true}
+                       (button {:variant :outline :text "Day"})
+                       (button {:variant :outline :text "Week"})
+                       (button {:variant :outline :text "Month"})))
+               (toolbar-end
+                (button {:variant :outline :text "Export"})))})
+
+    (card
+     {:title "Wrapping toolbar"
+      :description "Toolbars wrap naturally on narrow widths while preserving clear region structure."
+      :content
+      (toolbar {}
+               (toolbar-start
+                (button {:variant :outline :text "All"})
+                (button {:variant :outline :text "Open"})
+                (button {:variant :outline :text "Closed"}))
+               (toolbar-center
+                (status-pill {:status :waiting :dot? true})
+                (status-pill {:status :success :icon "check"}))
+               (toolbar-end
+                (button {:variant :outline :text "Reset"})
+                (button {:variant :primary :text "Apply"})))})]])
+
+(def ^:private page-demo-links
+  [{:slug "focused"
+    :title "Focused"
+    :description "A centered main work area with flexible side gutters and one continuous surface."}
+   {:slug "wide-focused"
+    :title "Wide focused"
+    :description "A wider central lane for denser screens that still want one coherent plane."}
+   {:slug "sidebar-main"
+    :title "Sidebar + main"
+    :description "A left rail for navigation or filters with a main work surface."}
+   {:slug "main-rail"
+    :title "Main + rail"
+    :description "A main work area with a right-hand contextual rail."}
+   {:slug "three-column"
+    :title "Three column"
+    :description "Left, main, and right regions all active at once."}
+   {:slug "full"
+    :title "Full"
+    :description "A broad full-width page for dashboards and dense operational screens."}])
+
+(defn- pages-section []
+  [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
+   (section-heading
+    "Pages"
+    "Real routed page demos for the page component family. These links should open full pages rather than tiny in-gallery previews.")
+
+   [:div {:class "panel-theme pad-card radius-lg"
+          :style {:border (str "var(--border-width, 1px) solid var(--border)")
+                  :background "var(--card)"
+                  :color "var(--card-foreground)"}}
+    [:ul {:class "list-theme"}
+     (for [{:keys [slug title description]} page-demo-links]
+       [:li {:key slug
+             :class "panel-theme"}
+        [:a {:href (str "/app/pages/" slug)
+             :class "font-body text-base-theme leading-body weight-semibold-theme"
+             :style {:color "var(--primary)"}}
+         title]
+        [:p {:class "font-body text-sm-theme leading-body"
+             :style {:color "var(--muted-foreground)"}}
+         description]])]]])
+
 (defn app [ctx]
   (ui/page
    ctx
@@ -777,6 +1140,8 @@
     (status-pills-section)
     (groups-section)
     (section-blocks-section)
+    (toolbars-section)
+    (pages-section)
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
@@ -876,12 +1241,32 @@
    :headers {"content-type" "application/json"}
    :body params})
 
-(def module
+#_(def module
   {:static {"/about/" about-page}
    :routes ["/app" {:middleware [mid/wrap-signed-in]}
             ["" {:get app}]
             ["/set-foo" {:post set-foo}]
             ["/set-bar" {:post set-bar}]
             ["/chat" {:get ws-handler}]]
+   :api-routes [["/api/echo" {:post echo}]]
+   :on-tx notify-clients})
+
+
+(def module
+  {:static {"/about/" about-page}
+   :routes ["/app" {:middleware [mid/wrap-signed-in]}
+            ["" {:get app}]
+            ["/set-foo" {:post set-foo}]
+            ["/set-bar" {:post set-bar}]
+            ["/chat" {:get ws-handler}]
+
+            ["/pages" {}
+             ["/focused" {:get page-focused}]
+
+             ["/wide-focused" {:get page-wide-focused}]
+             ["/sidebar-main" {:get page-sidebar-main}]
+             ["/main-rail" {:get page-main-rail}]
+             ["/three-column" {:get page-three-column}]
+             ["/full" {:get page-full}]]]
    :api-routes [["/api/echo" {:post echo}]]
    :on-tx notify-clients})

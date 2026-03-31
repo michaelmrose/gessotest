@@ -139,6 +139,51 @@
      biff/base-html
      (-> ctx
          (merge
+          (theme {:color-theme color-theme
+                  :density density
+                  :typography typography
+                  :shape shape}
+                 mode))
+         (update :base/head
+                 (fn [head]
+                   (concat
+                    head
+                    [[:script {:src (static-path "/js/gesso-theme.js")
+                               :defer true}]
+                     [:link {:rel "stylesheet"
+                             :href (static-path "/css/main.css")}]
+                     [:link {:rel "stylesheet"
+                             :href "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/basecoat.cdn.min.css"}]
+                     [:link {:rel "stylesheet"
+                             :href (static-path "/gesso/themes.css")}]
+                     (when (io/resource "public/gesso/app-themes.css")
+                       [:link {:rel "stylesheet"
+                               :href (static-path "/gesso/app-themes.css")}])
+                     [:script {:src "https://cdn.jsdelivr.net/npm/basecoat-css@0.3.11/dist/js/all.min.js"
+                               :defer true}]
+                     [:script {:src (static-path "/js/main.js")
+                               :defer true}]
+                     [:script {:src "https://unpkg.com/htmx.org@2.0.7"}]
+                     [:script {:src "https://unpkg.com/htmx-ext-ws@2.0.2/ws.js"}]
+                     [:script {:src "https://unpkg.com/hyperscript.org@0.9.14"}]
+                     (when recaptcha
+                       [:script {:src "https://www.google.com/recaptcha/api.js"
+                                 :async "async"
+                                 :defer "defer"}])])))
+         (merge
+          #:base{:title settings/app-name
+                 :lang "en-US"
+                 :icon "/img/glider.png"
+                 :description (str settings/app-name " Description")
+                 :image "https://clojure.org/images/clojure-logo-120b.png"}))
+     body)))
+
+#_(defn base [{:keys [::recaptcha] :as ctx} & body]
+  (let [{:keys [color-theme density typography shape mode]} (theme-state ctx)]
+    (apply
+     biff/base-html
+     (-> ctx
+         (merge
 
           (theme {:color-theme color-theme
                   :density density
@@ -205,6 +250,20 @@
            [:main {:class "flex-grow py-10"}
             (apply container body)]])))
 
+(defn page-shell
+  "Like page, but does not force the centered container.
+   Reuses the existing theme testing bar and lets callers supply their own
+   full-page layout."
+  [ctx & body]
+  (let [theme-options (discovered-theme-options)]
+    (base ctx
+          [:div {:class "min-h-screen flex flex-col bg-background text-foreground"}
+           (theme-testing-bar
+            (merge default-theme
+                   {:theme-options theme-options}))
+
+           (into [:main {:class "flex-grow py-10"}]
+                 body)])))
 
 (defn on-error [{:keys [status] :as ctx}]
   {:status status
