@@ -118,12 +118,18 @@
    ctx
    (page {:variant :sidebar-main
           :collapse-policy
-          {:md {:keep [:left :main]
-                :drop [:right]
-                :stack-order [:left :main :right]}
+
+          ;; shorter or longer version
+
+          #_{:md {:keep [:left :main]
+                :stack-order [:left :main ]}
            :sm {:keep [:main]
-                :drop [:left :right]
-                :stack-order [:main :left :right]}}}
+                :drop [:left ]
+                :stack-order [:main ]}}
+
+          {:md {:keep [:left :main] }
+           :sm {:keep [:main]}}
+          }
          (page-left
           [:div {:class "section-theme"}
            (rail-block
@@ -278,3 +284,86 @@
               [:p {:class "font-body text-sm-theme leading-body"
                    :style {:color "var(--muted-foreground)"}}
                "Use it when the screen truly benefits from a broader layout."]))]]))))
+
+
+(defn page-custom-layout
+  [ctx]
+  (ui/page-shell
+   ctx
+   (page
+    {:layout
+     {:default {:areas [[:left :main :main]
+                        [:left :right :right]]
+                :columns ["15rem" "minmax(0,1fr)" "minmax(0,1fr)"]
+                :show [:left :main :right]}
+      :md {:areas [[:main]
+                   [:right]]
+           :columns ["minmax(0,1fr)"]
+           :show [:main :right]}
+      :sm {:areas [[:main]]
+           :columns ["minmax(0,1fr)"]
+           :show [:main]}}}
+
+    (page-left
+     [:div {:class "section-theme"}
+      (rail-block
+       "Sections"
+       [:p {:class "font-body text-sm-theme leading-body"
+            :style {:color "var(--muted-foreground)"}}
+        "This left rail stays present on large screens, then drops away on small screens."]
+       [:nav {:class "list-theme"}
+        [:a {:href "#"
+             :style {:color "var(--primary)"}} "Top stories"]
+        [:a {:href "#"
+             :style {:color "var(--primary)"}} "Analysis"]
+        [:a {:href "#"
+             :style {:color "var(--primary)"}} "Markets"]
+        [:a {:href "#"
+             :style {:color "var(--primary)"}} "Opinion"]])
+      (plain-surface
+       [:div {:class "stack-theme"}
+        [:h3 {:class "font-heading text-md-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+         "At a glance"]
+        (group {:orientation :vertical}
+               (status-pill {:status :active})
+               (status-pill {:status :warning :dot? true})
+               (status-pill {:status :success :icon "check"}))])])
+
+    (page-main
+     (page-surface
+      (page-demo-header
+       "Custom layout page"
+       "This page uses :layout directly instead of a built-in variant. The main story surface sits above a wide supporting region, while a left rail anchors navigation.")
+      (toolbar {}
+               (toolbar-start
+                (button {:variant :outline :text "Refresh"})
+                (button {:variant :outline :text "Save"}))
+               (toolbar-end
+                (button {:variant :primary :text "Create"})))
+      [:section {:class "section-theme"}
+       [:div {:class "stack-theme"}
+        [:h2 {:class "font-heading text-2xl-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+         "Lead story"]
+        [:p {:class "font-body text-base-theme leading-body"
+             :style {:color "var(--muted-foreground)"}}
+         "The main region spans two columns on large screens, giving it enough room to feel like a real feature area rather than another small card."]
+        [:p {:class "font-body text-base-theme leading-body"}
+         "Use :layout when the built-in page variants are close, but not quite the page you want. It is especially helpful for editorial or dashboard-like arrangements that are still made from the same left, main, and right regions."]]]))
+
+    (page-right
+     [:section {:class "section-theme"}
+      [:div {:class "grid gap-panel md:grid-cols-2"}
+       (plain-surface
+        [:div {:class "stack-theme"}
+         [:h3 {:class "font-heading text-lg-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+          "Supporting block A"]
+         [:p {:class "font-body text-sm-theme leading-body"
+              :style {:color "var(--muted-foreground)"}}
+          "On large screens this wide lower band sits beneath the lead story and gives the page a more editorial feel."]])
+       (plain-surface
+        [:div {:class "stack-theme"}
+         [:h3 {:class "font-heading text-lg-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+          "Supporting block B"]
+         [:p {:class "font-body text-sm-theme leading-body"
+              :style {:color "var(--muted-foreground)"}}
+          "At medium widths it drops below the main story, and on small screens it disappears so the page stays focused."]])]]))))

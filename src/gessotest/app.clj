@@ -845,7 +845,12 @@
     :description "Left, main, and right regions all active at once."}
    {:slug "full"
     :title "Full"
-    :description "A broad full-width page for dashboards and dense operational screens."}])
+    :description "A broad full-width page for dashboards and dense operational screens."}
+   {:slug "custom-layout"
+    :title "Custom layout"
+    :description "An example that uses :layout directly for an editorial-style page with a left rail, a lead surface, and a wide supporting band."}
+
+   ])
 
 (defn- pages-section []
   [:section {:class "gap-section space-y-6 max-w-3xl mx-auto"}
@@ -1003,6 +1008,8 @@
              ["/sidebar-main" {:get page-sidebar-main}]
              ["/main-rail" {:get page-main-rail}]
              ["/three-column" {:get page-three-column}]
-             ["/full" {:get page-full}]]]
+             ["/full" {:get page-full}]
+             ["/custom-layout" {:get page-custom-layout}]
+             ]]
    :api-routes [["/api/echo" {:post echo}]]
    :on-tx notify-clients})
