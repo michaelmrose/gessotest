@@ -849,6 +849,9 @@
    {:slug "custom-layout"
     :title "Custom layout"
     :description "An example that uses :layout directly for an editorial-style page with a left rail, a lead surface, and a wide supporting band."}
+   {:slug "topbar-sidebar"
+    :title "Topbar + sidebar"
+    :description "A navigation-heavy page showing a sidebar collapsing into topbar overflow."}
 
    ])
 
@@ -1010,6 +1013,7 @@
              ["/three-column" {:get page-three-column}]
              ["/full" {:get page-full}]
              ["/custom-layout" {:get page-custom-layout}]
+             ["/topbar-sidebar" {:get page-topbar-sidebar}]
              ]]
    :api-routes [["/api/echo" {:post echo}]]
    :on-tx notify-clients})

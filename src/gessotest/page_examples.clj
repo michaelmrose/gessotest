@@ -367,3 +367,202 @@
          [:p {:class "font-body text-sm-theme leading-body"
               :style {:color "var(--muted-foreground)"}}
           "At medium widths it drops below the main story, and on small screens it disappears so the page stays focused."]])]]))))
+(defn page-topbar-sidebar
+  [ctx]
+  (let [library-sidebar-sections
+        [{:title "Getting started"
+          :items [{:id :overview
+                   :label "Overview"
+                   :href "#"}
+                  {:id :installation
+                   :label "Installation"
+                   :href "#"}
+                  {:id :theming
+                   :label "Theming"
+                   :href "#"}
+                  {:id :layouts
+                   :label "Layouts"
+                   :href "#"}]}
+
+         {:title "Components"
+          :items [{:id :accordion
+                   :label "Accordion"
+                   :href "#"}
+                  {:id :dialogs
+                   :label "Dialogs"
+                   :href "#"}
+                  {:id :dropdowns
+                   :label "Dropdown menus"
+                   :href "#"}
+                  {:id :tabs
+                   :label "Tabs"
+                   :href "#"}
+                  {:id :topbar
+                   :label "Topbar"
+                   :href "#"}
+                  {:id :sidebar
+                   :label "Sidebar"
+                   :href "#"}]}
+
+         {:title "Resources"
+          :items [{:id :examples
+                   :label "Examples"
+                   :href "#"}
+                  {:id :patterns
+                   :label "Patterns"
+                   :href "#"}
+                  {:id :changelog
+                   :label "Changelog"
+                   :href "#"}
+                  {:id :roadmap
+                   :label "Roadmap"
+                   :href "#"}]}]
+
+        library-topbar-items
+        [{:id :overview
+          :label "Overview"
+          :href "#"
+          :region :center
+          :priority 90
+          :collapse-at :sm
+          :overflow-target :menu}
+
+         {:id :primitives
+          :label "Primitives"
+          :href "#"
+          :region :center
+          :priority 80
+          :collapse-at :sm
+          :overflow-target :menu}
+
+         {:id :layouts
+          :label "Layouts"
+          :href "#"
+          :region :center
+          :priority 70
+          :collapse-at :sm
+          :overflow-target :menu}
+
+         {:id :examples
+          :label "Examples"
+          :href "#"
+          :region :center
+          :priority 60
+          :collapse-at :md
+          :overflow-target :menu}
+
+         {:id :blog
+          :label "Blog"
+          :href "#"
+          :region :right
+          :priority 30
+          :collapse-at :md
+          :overflow-target :menu}
+
+         {:id :changelog
+          :label "Changelog"
+          :href "#"
+          :region :right
+          :priority 20
+          :collapse-at :md
+          :overflow-target :menu}
+
+         {:id :account
+          :label "Account"
+          :href "#"
+          :region :right
+          :priority 10
+          :collapse-at :sm
+          :overflow-target :menu}]
+
+        menu-title
+        [:div {:class "stack-theme"}
+         [:div {:class "font-heading text-xl-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+          "Navigation"]
+         [:p {:class "font-body text-sm-theme leading-body"
+              :style {:color "var(--muted-foreground)"}}
+          "Collapsed topbar and sidebar items land here."]]
+
+        menu-extra
+        [(plain-surface
+          [:div {:class "stack-theme"}
+           [:h3 {:class "font-heading text-md-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"}
+            "Quick actions"]
+           (group {:orientation :vertical}
+                  (button {:variant :outline :text "Create page"})
+                  (button {:variant :outline :text "Search docs"})
+                  (button {:variant :primary :text "Open dashboard"}))])]
+
+        intro-block
+        (plain-surface
+         (content-block
+          "Main article"
+          [:p {:class "font-body text-base-theme leading-body"
+               :style {:color "var(--muted-foreground)"}}
+           "This example is intentionally navigation-heavy so the responsive behavior is easy to observe. On larger screens you get a persistent sidebar plus a busy topbar. At smaller sizes the sidebar disappears and its items are pushed into the topbar menu."]))
+
+        rationale-block
+        (plain-surface
+         (content-block
+          "Why this page exists"
+          [:p {:class "font-body text-base-theme leading-body"
+               :style {:color "var(--muted-foreground)"}}
+           "The point is to show the sidebar and topbar working in concert rather than acting like two unrelated systems."]))
+
+        notes-block
+        (plain-surface
+         (content-block
+          "Notes"
+          [:ul {:class "list-theme font-body text-sm-theme leading-body"
+                :style {:color "var(--muted-foreground)"}}
+           [:li "Large: sidebar visible, topbar center links visible, right-side utility links visible."]
+           [:li "Medium: sidebar collapses, hamburger appears, overflow menu pushes content down."]
+           [:li "Small: center links disappear, hamburger becomes the main navigation entry point."]]))
+
+        main-content
+        [:section {:class "section-theme"}
+         [:div {:class "grid gap-panel md:grid-cols-2"}
+          intro-block
+          rationale-block]
+         notes-block]]
+
+    (ui/page-shell
+     ctx
+     (topbar
+      {:brand
+       [:a {:href "/app"
+            :class "font-heading text-lg-theme leading-tight-theme tracking-tight-theme weight-semibold-theme"
+            :style {:color "var(--foreground)"}}
+        "Gesso"]
+
+       :items library-topbar-items
+       :menu-title menu-title
+       :menu-items (sidebar-overflow-items library-sidebar-sections)
+       :menu-extra menu-extra})
+
+     (page
+      {:variant :sidebar-main
+       :collapse-policy
+       {:md {:keep [:left :main]
+             :stack-order [:left :main]}
+        :sm {:keep [:main]
+             :drop [:left]
+             :stack-order [:main]}}}
+
+      (page-left
+       (sidebar {:sections library-sidebar-sections
+                 :collapse-at :md}))
+
+      (page-main
+       (page-surface
+        (page-demo-header
+         "Topbar + sidebar page"
+         "A busier navigation example where the sidebar collapses away and contributes its items to the topbar menu.")
+        (toolbar {}
+                 (toolbar-start
+                  (status-pill {:status :active})
+                  (status-pill {:status :claimed :text "Docs"}))
+                 (toolbar-end
+                  (button {:variant :outline :text "Edit"})
+                  (button {:variant :primary :text "Publish"})))
+        main-content))))))
