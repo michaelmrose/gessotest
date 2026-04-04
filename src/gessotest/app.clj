@@ -12,6 +12,7 @@
    [tick.core :as tick]
    [gesso.core :as gs :refer :all ]
    [gessotest.page-examples :refer :all]
+   [gessotest.bars-demo :refer [bars-demo-page]]
    ))
 
 (defn- section-heading
@@ -849,7 +850,9 @@
    {:slug "custom-layout"
     :title "Custom layout"
     :description "An example that uses :layout directly for an editorial-style page with a left rail, a lead surface, and a wide supporting band."}
-
+{:slug "bars-demo"
+    :title "Bars demo"
+    :description "A full-page demo of the bars navigation shell, including topbar, sidebar, and hamburger behavior."}
    ])
 
 (defn- pages-section []
@@ -1003,7 +1006,7 @@
 
             ["/pages" {}
              ["/focused" {:get page-focused}]
-
+             ["/bars-demo" {:get bars-demo-page}]
              ["/wide-focused" {:get page-wide-focused}]
              ["/sidebar-main" {:get page-sidebar-main}]
              ["/main-rail" {:get page-main-rail}]
