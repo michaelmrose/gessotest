@@ -43,7 +43,7 @@
     :icon "check"
     :home-region :rightmost
     :category :account
-    :collapse-at :medium
+    :collapse-at :small
     :priority 20
     :groups [(bars/menu-group
               {:heading "Session"
