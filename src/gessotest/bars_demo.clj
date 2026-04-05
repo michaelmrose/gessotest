@@ -1,11 +1,8 @@
 (ns gessotest.bars-demo
   (:require
    [gesso.components.bars.core :as bars]
-   [gesso.core :refer [button card group icon section-block status-pill text]]
+   [gesso.core :refer [button card group icon status-pill text]]
    [gessotest.ui :as ui]))
-
-(def ^:private demo-href
-  "/app/bars-demo")
 
 (defn- demo-link-item
   ([text]
@@ -13,7 +10,7 @@
   ([text opts]
    (bars/menu-item
     (merge {:text text
-            :href demo-href}
+            :href "/app/pages/bars-demo"}
            opts))))
 
 (defn- dashboard-menu []
@@ -26,26 +23,34 @@
 (defn- browse-menu []
   (bars/menu
    {:label "Browse"
+    :icon "inbox"
     :home-region :center
     :priority 80
     :collapse-at :small
     :groups [(bars/menu-group
-              {:items [(demo-link-item "Requests")
-                       (demo-link-item "Employees")
-                       (demo-link-item "Reports")]})]}))
+              {:heading "Queues"
+               :items [(demo-link-item "Waiting" {:icon "alert-triangle"})
+                       (demo-link-item "Active" {:icon "check"})
+                       (demo-link-item "Completed" {:icon "check"})]})
+             (bars/menu-group
+              {:heading "Explore"
+               :items [(demo-link-item "Saved searches" {:icon "search"})
+                       (demo-link-item "Inbox" {:icon "inbox"})]})]}))
 
 (defn- account-menu []
   (bars/menu
    {:label "Account"
+    :icon "check"
     :home-region :rightmost
     :category :account
     :collapse-at :medium
     :priority 20
     :groups [(bars/menu-group
               {:heading "Session"
-               :items [(demo-link-item "Profile")
-                       (demo-link-item "Settings")
-                       (bars/menu-item {:text "Sign out"})]})]}))
+               :items [(demo-link-item "Profile" {:icon "check"})
+                       (demo-link-item "Settings" {:icon "search"})
+                       (bars/menu-item {:text "Sign out"
+                                        :icon "x"})]})]}))
 
 (defn- operations-menu []
   (bars/menu
@@ -55,23 +60,25 @@
     :priority 60
     :groups [(bars/menu-group
               {:heading "Queues"
-               :items [(demo-link-item "Waiting")
-                       (demo-link-item "Active")
-                       (demo-link-item "Completed")]})
+               :items [(demo-link-item "Waiting" {:icon "alert-triangle"})
+                       (demo-link-item "Active" {:icon "check"})
+                       (demo-link-item "Completed" {:icon "check"})]})
              (bars/menu-group
               {:heading "Tools"
-               :items [(demo-link-item "Schedule")
-                       (demo-link-item "Coverage")]})]}))
+               :items [(demo-link-item "Schedule" {:icon "search"})
+                       (demo-link-item "Coverage" {:icon "inbox"})]})]}))
 
 (defn- demo-menus []
   [
    ;; (dashboard-menu)
    (browse-menu)
+   (browse-menu)
+   (browse-menu)
    (account-menu)
    (operations-menu)])
 
 (defn- demo-brand []
-  [:a {:href demo-href
+  [:a {:href "/app/pages/bars-demo"
        :class "cluster-theme items-center"
        :style {:color "var(--foreground)"
                :text-decoration "none"}}
@@ -87,10 +94,10 @@
     [:div {:class "content-stack-theme"}
      (text
       {:variant :body
-       :text "Resize the browser to verify the large, medium, and small behaviors."})
+       :text "The topbar now demonstrates both direct single-item menus and richer click-open dropdown menus."})
      (text
       {:variant :muted
-       :text "This page is deliberately plain. The point is to make structural and breakpoint bugs obvious."})]}))
+       :text "Resize the browser to verify the large, medium, and small behaviors while also checking dropdown triggers and item icons."})]}))
 
 (defn- behavior-card []
   (card
@@ -100,10 +107,10 @@
     [:div {:class "content-stack-theme"}
      (text
       {:variant :body
-       :text "Large: topbar visible, sidebar visible, hamburger likely absent."})
+       :text "Large: Dashboard should render directly, while Browse and Account should render as dropdown triggers in the topbar."})
      (text
       {:variant :body
-       :text "Medium: sidebar collapsed, hamburger visible, opening it should push content downward."})
+       :text "Medium: Account should collapse into the hamburger, while Browse should remain in the topbar."})
      (text
       {:variant :body
        :text "Small: opening the hamburger should replace the page content below the topbar."})]}))
@@ -118,18 +125,18 @@
      (button {:variant :outline :text "Secondary action"})
      (button {:variant :ghost :text "Tertiary action"})]}))
 
-(defn- notes-block []
-  (section-block
+(defn- notes-card []
+  (card
    {:title "Notes"
     :description "Current scope of this test page."
     :content
-    [[:div {:class "content-stack-theme"}
-      (text
-       {:variant :body
-        :text "This page is testing the bars component exactly as it exists now."})
-      (text
-       {:variant :body
-        :text "It is not asserting richer dropdown behavior or measured overflow logic that has not been implemented."})]]}))
+    [:div {:class "content-stack-theme"}
+     (text
+      {:variant :body
+       :text "This page is testing the bars component exactly as it exists now."})
+     (text
+      {:variant :body
+       :text "Topbar dropdown support is now exercised here, but measured overflow logic is still not part of the implementation."})]}))
 
 (defn- status-row []
   (group {:class "cluster-theme"}
@@ -145,7 +152,7 @@
     [:div {:class "grid grid-cols-1 xl:grid-cols-2 gap-6"}
      (behavior-card)
      (filler-card)]
-    (notes-block)]])
+    (notes-card)]])
 
 (defn bars-demo-page
   [ctx]
