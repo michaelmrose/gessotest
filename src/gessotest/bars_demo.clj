@@ -1,7 +1,8 @@
 (ns gessotest.bars-demo
   (:require
    [gesso.components.bars.core :as bars]
-   [gesso.core :refer [button card group icon status-pill text]]
+   [gesso.core :refer [button card group icon status-pill text background]]
+   [gesso.components.background.patterns :as bg]
    [gessotest.ui :as ui]))
 
 (defn- demo-link-item
@@ -144,15 +145,17 @@
          (status-pill {:status :info :text "Sidebar"})
          (status-pill {:status :warning :text "Hamburger"})))
 
+
 (defn- demo-content []
-  [:div {:class "pad-container py-8"}
-   [:div {:class "section-theme max-w-5xl mx-auto"}
-    (intro-card)
-    (status-row)
-    [:div {:class "grid grid-cols-1 xl:grid-cols-2 gap-6"}
-     (behavior-card)
-     (filler-card)]
-    (notes-card)]])
+  [:div {:class "relative isolate overflow-hidden"}
+   [:div {:class "relative z-10 pad-container py-8"}
+    [:div {:class "section-theme max-w-5xl mx-auto"}
+     (intro-card)
+     (status-row)
+     [:div {:class "grid grid-cols-1 xl:grid-cols-2 gap-6"}
+      (behavior-card)
+      (filler-card)]
+     (notes-card)]]])
 
 (defn bars-demo-page
   [ctx]
@@ -163,3 +166,18 @@
      :sidebar-collapse-at :medium
      :menus (demo-menus)}
     (demo-content))))
+
+(defn bars-demo-page
+  [ctx]
+  (ui/page-shell
+   ctx
+   [:div {:class "relative isolate min-h-screen overflow-hidden"}
+    (background {:light bg/orb-grid-background-light
+                 :dark bg/orb-grid-background-light})
+
+    [:div {:class "relative z-10"}
+     (bars/bars
+      {:brand (demo-brand)
+       :sidebar-collapse-at :medium
+       :menus (demo-menus)}
+      (demo-content))]]))
