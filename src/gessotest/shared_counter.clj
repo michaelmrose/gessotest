@@ -5,6 +5,12 @@
 
 (def counter-id "global-shared-counter")
 
+(defn subscription []
+  "shared-counter")
+
+(defn stream-url []
+  (str "/app/gesso/live/stream?subscription=" (subscription)))
+
 (defn query []
   ["SELECT _id, demo$value
     FROM demo_counters
@@ -25,6 +31,62 @@
         0)))
 
 (defn fragment
+  [ctx]
+  (let [n (value ctx)
+        anti-forgery-token (:anti-forgery-token ctx)
+        ;; We use :inner-attrs to overwrite the trigger so it listens to the parent wrapper
+        live-attrs (live/fragment-target-attrs
+                    {:id "shared-counter-fragment"
+                     :src "/app/demo/shared-counter/fragment"
+                     :stream-url (stream-url)
+                     :inner-attrs {:hx-trigger "sse:live-update from:closest [hx-ext='sse']"}})]
+
+    [:section (merge live-attrs {:class "mx-auto max-w-3xl py-6"})
+     [:div {:class "rounded-2xl border border-border bg-card text-card-foreground shadow-sm p-6 space-y-5"}
+      [:div {:class "space-y-2 text-center"}
+       [:div {:class "font-body text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground"}
+        "Live Demo"]
+       [:h2 {:class "font-heading leading-heading tracking-heading text-2xl font-bold"}
+        "Shared Counter"]
+       [:p {:class "font-body leading-body text-muted-foreground text-base-theme"}
+        "All signed-in users see and change the same persisted value."]]
+
+      [:div {:class "flex items-center justify-center gap-4"}
+       [:form {:method "post"
+               :action "/app/demo/shared-counter/decrement"
+               :hx-post "/app/demo/shared-counter/decrement"
+               :hx-target "#shared-counter-fragment"
+               :hx-swap "outerHTML"}
+        [:input {:type "hidden"
+                 :name "__anti-forgery-token"
+                 :value anti-forgery-token}]
+        [:button {:type "submit"
+                  :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
+         "−"]]
+
+       [:div {:class "min-w-28 rounded-xl bg-muted px-6 py-4 text-center"}
+        [:div {:class "font-body text-xs uppercase tracking-[0.16em] text-muted-foreground"}
+         "Value"]
+        [:div {:class "font-heading text-3xl font-bold"}
+         n]]
+
+       [:form {:method "post"
+               :action "/app/demo/shared-counter/increment"
+               :hx-post "/app/demo/shared-counter/increment"
+               :hx-target "#shared-counter-fragment"
+               :hx-swap "outerHTML"}
+        [:input {:type "hidden"
+                 :name "__anti-forgery-token"
+                 :value anti-forgery-token}]
+        [:button {:type "submit"
+                  :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
+         "+"]]]
+
+      [:p {:class "text-center font-body text-sm text-muted-foreground"}
+       "Updates are persisted and pushed live to all viewers."]]]))
+
+
+#_(defn fragment
   [ctx]
   (let [n (value ctx)
         anti-forgery-token (:anti-forgery-token ctx)]
