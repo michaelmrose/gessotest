@@ -13,6 +13,7 @@
    [gesso.core :as gs :refer :all ]
    [gessotest.page-examples :refer :all]
    [gessotest.bars-demo :refer [bars-demo-page]]
+   [gessotest.shared-counter :as shared-counter]
    ))
 
 (defn- section-heading
@@ -896,6 +897,7 @@
     (section-blocks-section)
     (toolbars-section)
     (pages-section)
+    (shared-counter/section)
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
@@ -1003,8 +1005,12 @@
             ["/set-foo" {:post set-foo}]
             ["/set-bar" {:post set-bar}]
             ["/chat" {:get ws-handler}]
+            ["/demo/shared-counter/fragment" {:get gessotest.shared-counter/fragment-handler}]
+            ["/demo/shared-counter/increment" {:get gessotest.shared-counter/increment!}]
+            ["/demo/shared-counter/decrement" {:get gessotest.shared-counter/decrement!}]
 
             ["/pages" {}
+
              ["/focused" {:get page-focused}]
              ["/bars-demo" {:get bars-demo-page}]
              ["/wide-focused" {:get page-wide-focused}]
