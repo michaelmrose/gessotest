@@ -9,7 +9,7 @@
   "shared-counter")
 
 (defn stream-url []
-  (str "/gesso/live/stream?subscription=" (subscription)))
+  (str "/app//gesso/live/stream?subscription=" (subscription)))
 
 (defn query []
   ["SELECT _id, demo$value
@@ -32,7 +32,8 @@
 
 (defn fragment
   [ctx]
-  (let [n (value ctx)]
+  (let [n (value ctx)
+        anti-forgery-token (:anti-forgery-token ctx)]
     [:section {:id "shared-counter-fragment"
                :class "mx-auto max-w-3xl py-6"}
      [:div {:class "rounded-2xl border border-border bg-card text-card-foreground shadow-sm p-6 space-y-5"}
@@ -45,12 +46,17 @@
         "All signed-in users see and change the same persisted value."]]
 
       [:div {:class "flex items-center justify-center gap-4"}
-       [:button {:type "button"
-                 :hx-get "/app/demo/shared-counter/decrement"
-                 :hx-target "#shared-counter-fragment"
-                 :hx-swap "outerHTML"
-                 :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
-        "−"]
+       [:form {:method "post"
+               :action "/app/demo/shared-counter/decrement"
+               :hx-post "/app/demo/shared-counter/decrement"
+               :hx-target "#shared-counter-fragment"
+               :hx-swap "outerHTML"}
+        [:input {:type "hidden"
+                 :name "__anti-forgery-token"
+                 :value anti-forgery-token}]
+        [:button {:type "submit"
+                  :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
+         "−"]]
 
        [:div {:class "min-w-28 rounded-xl bg-muted px-6 py-4 text-center"}
         [:div {:class "font-body text-xs uppercase tracking-[0.16em] text-muted-foreground"}
@@ -58,12 +64,17 @@
         [:div {:class "font-heading text-3xl font-bold"}
          n]]
 
-       [:button {:type "button"
-                 :hx-get "/app/demo/shared-counter/increment"
-                 :hx-target "#shared-counter-fragment"
-                 :hx-swap "outerHTML"
-                 :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
-        "+"]]
+       [:form {:method "post"
+               :action "/app/demo/shared-counter/increment"
+               :hx-post "/app/demo/shared-counter/increment"
+               :hx-target "#shared-counter-fragment"
+               :hx-swap "outerHTML"}
+        [:input {:type "hidden"
+                 :name "__anti-forgery-token"
+                 :value anti-forgery-token}]
+        [:button {:type "submit"
+                  :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
+         "+"]]]
 
       [:p {:class "text-center font-body text-sm text-muted-foreground"}
        "Updates are persisted and pushed live to all viewers."]]]))
@@ -78,40 +89,6 @@
 (defn fragment-handler
   [ctx]
   (fragment ctx))
-
-#_(defn- write-value!
-  [ctx new-value reason]
-  (prn :shared-counter/write-start
-       :new-value new-value
-       :reason reason
-       :bus (:gesso.live/bus ctx))
-  (try
-    (let [result
-          (live.xtdb/submit-tx!
-           ctx
-           {:tx [[:put-docs :demo_counters
-                  {:xt/id counter-id
-                   :demo/value new-value}]]
-            :changed {:entity/type :demo-counter
-                      :entity/id counter-id
-                      :change/kind :updated}
-            :data {:reason reason}})]
-      (prn :shared-counter/write-success result)
-      result)
-    (catch Throwable t
-      (prn :shared-counter/write-failed
-           {:message (.getMessage t)
-            :class (class t)
-            :data (ex-data t)})
-      (throw t))))
-
-#_(defn- write-value!
-  [ctx new-value _reason]
-  (live.xtdb/submit-tx-raw!
-   (live.xtdb/connectable-from-ctx ctx)
-   [[:put-docs :demo_counters
-     {:xt/id counter-id
-      :demo/value new-value}]]))
 
 (defn- write-value!
   [ctx new-value reason]

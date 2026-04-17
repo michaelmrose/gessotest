@@ -13,6 +13,7 @@
    [gesso.core :as gs :refer :all ]
    [gessotest.page-examples :refer :all]
    [gessotest.bars-demo :refer [bars-demo-page]]
+   [gessotest.live :as live]
    [gessotest.shared-counter :as shared-counter]
    ))
 
@@ -997,20 +998,20 @@
    :headers {"content-type" "application/json"}
    :body params})
 
-
 (def module
   {:static {"/about/" about-page}
-   :routes ["/app" {:middleware [mid/wrap-signed-in]}
+   :routes ["/app" {:middleware [mid/wrap-signed-in
+                                 live/wrap-live-bus]}
             ["" {:get app}]
             ["/set-foo" {:post set-foo}]
             ["/set-bar" {:post set-bar}]
             ["/chat" {:get ws-handler}]
-            ["/demo/shared-counter/fragment" {:get gessotest.shared-counter/fragment-handler}]
-            ["/demo/shared-counter/increment" {:get gessotest.shared-counter/increment!}]
-            ["/demo/shared-counter/decrement" {:get gessotest.shared-counter/decrement!}]
+            ["/gesso/live/stream" {:get live/sse-handler}]
+            ["/demo/shared-counter/fragment" {:get shared-counter/fragment-handler}]
+            ["/demo/shared-counter/increment" {:post shared-counter/increment!}]
+            ["/demo/shared-counter/decrement" {:post shared-counter/decrement!}]
 
             ["/pages" {}
-
              ["/focused" {:get page-focused}]
              ["/bars-demo" {:get bars-demo-page}]
              ["/wide-focused" {:get page-wide-focused}]
@@ -1018,7 +1019,6 @@
              ["/main-rail" {:get page-main-rail}]
              ["/three-column" {:get page-three-column}]
              ["/full" {:get page-full}]
-             ["/custom-layout" {:get page-custom-layout}]
-             ]]
+             ["/custom-layout" {:get page-custom-layout}]]]
    :api-routes [["/api/echo" {:post echo}]]
    :on-tx notify-clients})
