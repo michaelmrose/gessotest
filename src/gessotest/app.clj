@@ -1019,6 +1019,9 @@
              ["/main-rail" {:get page-main-rail}]
              ["/three-column" {:get page-three-column}]
              ["/full" {:get page-full}]
-             ["/custom-layout" {:get page-custom-layout}]]]
+             ["/custom-layout" {:get page-custom-layout}]]
+
+
+            ]
    :api-routes [["/api/echo" {:post echo}]]
    :on-tx notify-clients})

@@ -68,22 +68,25 @@
   "Read the raw subscription request param and parse it into an app subscription."
   [ctx]
   (let [raw (or (get-in ctx [:params "subscription"])
-                (get-in ctx [:params :subscription]))
+                (get-in ctx [:params :subscription])
+                (get-in ctx [:query-params "subscription"])
+                (get-in ctx [:query-params :subscription]))
         parsed (parse-subscription raw)]
     (prn :live/subscription-from-ctx
          :params (:params ctx)
+         :query-params (:query-params ctx)
          :raw raw
          :parsed parsed)
     parsed))
 
 (defn sse-handler
-  "Open an SSE stream for the parsed subscription from the current request."
   [ctx]
-  (prn :live/sse-handler
-       :uri (:uri ctx)
-       :request-method (:request-method ctx)
-       :params (:params ctx)
-       :subscription (subscription-from-ctx ctx))
-  (sse/handler
-   {:ctx ctx
-    :subscription-fn subscription-from-ctx}))
+  (let [subscription (subscription-from-ctx ctx)]
+    (prn :live/sse-handler
+         :uri (:uri ctx)
+         :request-method (:request-method ctx)
+         :params (:params ctx)
+         :subscription subscription)
+    (sse/handler
+     {:ctx ctx
+      :subscription-fn (constantly subscription)})))
