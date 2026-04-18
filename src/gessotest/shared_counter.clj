@@ -9,7 +9,7 @@
   "shared-counter")
 
 (defn stream-url []
-  "/app/gesso/live/stream?subscription=shared-counter")
+  "/gesso/live/stream?subscription=shared-counter")
 
 (defn query []
   ["SELECT _id, demo$value
@@ -83,7 +83,7 @@
   (live/fragment
    {:id "shared-counter-fragment"
     :src "/app/demo/shared-counter/fragment"
-    :stream-url "/app/gesso/live/stream?subscription=shared-counter"
+    :stream-url (stream-url)
     :swap "innerHTML"}))
 
 (defn fragment-handler
@@ -92,12 +92,26 @@
 
 (defn- write-value!
   [ctx new-value reason]
-  (live.xtdb/submit-tx!
+  ;; 1. Submit the raw transaction directly to XTDB2
+  (live.xtdb/submit-tx-raw!
+   (live.xtdb/connectable-from-ctx ctx)
+   [[:put-docs :demo_counters
+     {:xt/id counter-id
+      :demo/value new-value}]])
+
+  ;; 2. Block until the database read catches up to the write.
+  ;; This prevents the async race condition where Client 2 receives the
+  ;; SSE ping and fetches before the database has indexed the transaction.
+  (loop [attempts 0]
+    (when (and (< attempts 20)
+               (not= new-value (value ctx)))
+      (Thread/sleep 50)
+      (recur (inc attempts))))
+
+  ;; 3. Now that the data is ready, notify the live bus
+  (live/publish-change!
    ctx
-   {:tx [[:put-docs :demo_counters
-          {:xt/id counter-id
-           :demo/value new-value}]]
-    :changed {:entity/type :demo-counter
+   {:changed {:entity/type :demo-counter
               :entity/id counter-id
               :change/kind :updated}
     :data {:reason reason}}))
