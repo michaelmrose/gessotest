@@ -998,45 +998,15 @@
    :headers {"content-type" "application/json"}
    :body params})
 
-#_(def module
-  {:static {"/about/" about-page}
-   :routes ["/app" {:middleware [mid/wrap-signed-in
-                                 live/wrap-live-bus]}
-            ["" {:get app}]
-            ["/set-foo" {:post set-foo}]
-            ["/set-bar" {:post set-bar}]
-            ["/chat" {:get ws-handler}]
-            ["/gesso/live/stream" {:get live/sse-handler}]
-            ["/demo/shared-counter/fragment" {:get shared-counter/fragment-handler}]
-            ["/demo/shared-counter/increment" {:post shared-counter/increment!}]
-            ["/demo/shared-counter/decrement" {:post shared-counter/decrement!}]
-
-            ["/pages" {}
-             ["/focused" {:get page-focused}]
-             ["/bars-demo" {:get bars-demo-page}]
-             ["/wide-focused" {:get page-wide-focused}]
-             ["/sidebar-main" {:get page-sidebar-main}]
-             ["/main-rail" {:get page-main-rail}]
-             ["/three-column" {:get page-three-column}]
-             ["/full" {:get page-full}]
-             ["/custom-layout" {:get page-custom-layout}]]
-
-
-            ]
-   :api-routes [["/api/echo" {:post echo}]]
-   :on-tx notify-clients})
-
 (def module
   {:static {"/about/" about-page}
-   :routes [["/gesso/live/stream"
-             {:get (live/wrap-live-bus live/sse-handler)}]
-
-            ["/app" {:middleware [mid/wrap-signed-in
+   :routes [["/app" {:middleware [mid/wrap-signed-in
                                   live/wrap-live-bus]}
              ["" {:get app}]
              ["/set-foo" {:post set-foo}]
              ["/set-bar" {:post set-bar}]
              ["/chat" {:get ws-handler}]
+             ["/gesso/live/stream" {:get live/sse-handler}]
              ["/demo/shared-counter/fragment" {:get shared-counter/fragment-handler}]
              ["/demo/shared-counter/increment" {:post shared-counter/increment!}]
              ["/demo/shared-counter/decrement" {:post shared-counter/decrement!}]

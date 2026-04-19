@@ -9,7 +9,7 @@
   "shared-counter")
 
 (defn stream-url []
-  "/gesso/live/stream?subscription=shared-counter")
+  "/app/gesso/live/stream?subscription=shared-counter")
 
 (defn query []
   ["SELECT _id, demo$value
