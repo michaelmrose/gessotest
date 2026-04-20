@@ -16,13 +16,13 @@
   []
   ["SELECT _id, demo$value
     FROM demo_counters
-    WHERE _id = ? "
+    WHERE _id = ?"
    counter-id])
-
 
 (defn extract-counter-value
   [row]
   (or (:demo$value row)
+      (:demo/value row)
       0))
 
 (defn value
@@ -74,48 +74,39 @@
         {:to "/app/demo/shared-counter/increment"
          :label "+"})]
 
-     [:p {:class "text-center font-body text-sm text-muted-foreground"}
+      [:p {:class "text-center font-body text-sm text-muted-foreground"}
        "Updates are persisted and pushed live to all viewers."]]]))
 
 (defn section
   []
   (live/fragment-panel live-config))
 
-
-
-
 (defn increment!
   [ctx]
-  (let [new-value (inc (value ctx))]
-    (live.xtdb/put-value-and-publish!
-     ctx
+  (let [new-value (inc (value ctx))
+        live-ctx  (dissoc ctx :biff/conn)]
+    (live.xtdb/put-and-publish!
+     live-ctx
      {:table :demo_counters
       :doc {:xt/id counter-id
             :demo/value new-value}
-      :query (query)
-      :extract-value extract-counter-value
-      :expected-value new-value
       :changed {:entity/type :demo-counter
                 :entity/id counter-id
                 :change/kind :updated}
       :data {:reason :increment}})
-    ;; STRIP THE STALE CONNECTION FOR THE HTML RETURN
-    (fragment (dissoc ctx :biff/conn))))
+    (fragment live-ctx)))
 
 (defn decrement!
   [ctx]
-  (let [new-value (dec (value ctx))]
-    (live.xtdb/put-value-and-publish!
-     ctx
+  (let [new-value (dec (value ctx))
+        live-ctx  (dissoc ctx :biff/conn)]
+    (live.xtdb/put-and-publish!
+     live-ctx
      {:table :demo_counters
       :doc {:xt/id counter-id
             :demo/value new-value}
-      :query (query)
-      :extract-value extract-counter-value
-      :expected-value new-value
       :changed {:entity/type :demo-counter
                 :entity/id counter-id
                 :change/kind :updated}
       :data {:reason :decrement}})
-    ;; STRIP THE STALE CONNECTION FOR THE HTML RETURN
-    (fragment (dissoc ctx :biff/conn))))
+    (fragment live-ctx)))
