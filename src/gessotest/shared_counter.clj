@@ -16,8 +16,10 @@
   []
   ["SELECT _id, demo$value
     FROM demo_counters
-    WHERE _id = ?"
-   counter-id])
+    WHERE _id = ? "
+   counter-id
+   ])
+
 
 (defn extract-counter-value
   [row]
