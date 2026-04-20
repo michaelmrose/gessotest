@@ -17,8 +17,7 @@
   ["SELECT _id, demo$value
     FROM demo_counters
     WHERE _id = ? "
-   counter-id
-   ])
+   counter-id])
 
 
 (defn extract-counter-value
@@ -75,12 +74,15 @@
         {:to "/app/demo/shared-counter/increment"
          :label "+"})]
 
-      [:p {:class "text-center font-body text-sm text-muted-foreground"}
+     [:p {:class "text-center font-body text-sm text-muted-foreground"}
        "Updates are persisted and pushed live to all viewers."]]]))
 
 (defn section
   []
   (live/fragment-panel live-config))
+
+
+
 
 (defn increment!
   [ctx]
@@ -97,7 +99,8 @@
                 :entity/id counter-id
                 :change/kind :updated}
       :data {:reason :increment}})
-    (fragment ctx)))
+    ;; STRIP THE STALE CONNECTION FOR THE HTML RETURN
+    (fragment (dissoc ctx :biff/conn))))
 
 (defn decrement!
   [ctx]
@@ -114,4 +117,5 @@
                 :entity/id counter-id
                 :change/kind :updated}
       :data {:reason :decrement}})
-    (fragment ctx)))
+    ;; STRIP THE STALE CONNECTION FOR THE HTML RETURN
+    (fragment (dissoc ctx :biff/conn))))
