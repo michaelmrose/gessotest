@@ -1004,16 +1004,24 @@
 
 (def module
   {:static {"/about/" about-page}
+
    :routes [["/app" {:middleware [mid/wrap-signed-in
+                                  ;; FIX: Point to your initialized system, not the namespace
                                   (:middleware live-system)]}
+
              ["" {:get app}]
              ["/set-foo" {:post set-foo}]
              ["/set-bar" {:post set-bar}]
              ["/chat" {:get ws-handler}]
-             ["/gesso/live/stream" {:get (:sse-handler live-system)}]
-             ["/demo/shared-counter/fragment" {:get shared-counter/fragment
-                                                   :post shared-counter/fragment}]
 
+             ;; The SSE Stream endpoint
+             ["/gesso/live/stream" {:get (:sse-handler live-system)}]
+
+             ;; The Shared Counter Fragment
+             ["/demo/shared-counter/fragment" {:get  shared-counter/fragment
+                                               :post shared-counter/fragment}]
+
+             ;; Page Examples
              ["/pages" {}
               ["/focused" {:get page-focused}]
               ["/bars-demo" {:get bars-demo-page}]
@@ -1023,5 +1031,7 @@
               ["/three-column" {:get page-three-column}]
               ["/full" {:get page-full}]
               ["/custom-layout" {:get page-custom-layout}]]]]
+
    :api-routes [["/api/echo" {:post echo}]]
+
    :on-tx notify-clients})
