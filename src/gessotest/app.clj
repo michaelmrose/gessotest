@@ -898,7 +898,7 @@
     (section-blocks-section)
     (toolbars-section)
     (pages-section)
-    (shared-counter/section)
+    (shared-counter/section ctx)
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
@@ -1011,9 +1011,8 @@
              ["/set-bar" {:post set-bar}]
              ["/chat" {:get ws-handler}]
              ["/gesso/live/stream" {:get (:sse-handler live-system)}]
-             ["/demo/shared-counter/fragment" {:get shared-counter/fragment}]
-             ["/demo/shared-counter/increment" {:post shared-counter/increment!}]
-             ["/demo/shared-counter/decrement" {:post shared-counter/decrement!}]
+             ["/demo/shared-counter/fragment" {:get shared-counter/fragment
+                                                   :post shared-counter/fragment}]
 
              ["/pages" {}
               ["/focused" {:get page-focused}]

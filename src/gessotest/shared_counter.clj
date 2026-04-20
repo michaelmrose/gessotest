@@ -1,112 +1,49 @@
 (ns gessotest.shared-counter
-  (:require
-   [gesso.live.core :as live]
-   [gesso.live.consistency.xtdb :as live.xtdb]))
+  (:require [gesso.live.dsl :refer [defsynced defoperation]]
+            [gesso.live.core :as live]
+            [ring.util.anti-forgery :refer [anti-forgery-token]]))
 
-(def counter-id "global-shared-counter")
+;; 1. The Data Definition
+(defsynced counter
+  {:path [:demo_counters "global-shared-counter" :demo/value]
+   :default 0})
 
+;; 2. The Operations
+(defoperation increment! [ctx] (swap! counter inc))
+(defoperation decrement! [ctx] (swap! counter dec))
+
+;; 3. The Live Configuration
 (def live-config
   {:subscription/token "shared-counter"
-   :entry [:demo-counter counter-id]
-   :fragment/id "shared-counter-fragment"
+   :fragment/id "shared-counter"
    :fragment/src "/app/demo/shared-counter/fragment"
-   :fragment/swap "innerHTML"})
+   :fragment/swap "outerHTML"})
 
-(defn query
-  []
-  ["SELECT _id, demo$value
-    FROM demo_counters
-    WHERE _id = ?"
-   counter-id])
+;; 4. The Fragment (Controller + View)
+(defn fragment [{:keys [params] :as ctx}]
+  ;; Gateway logic: Intercept the POST action
+  (case (get params "op")
+    "inc" (increment! ctx)
+    "dec" (decrement! ctx)
+    nil)
 
-(defn extract-counter-value
-  [row]
-  (or (:demo$value row)
-      (:demo/value row)
-      0))
+  (let [n (counter-value ctx)
+        ;; Biff provides this in the request map
+        token (force anti-forgery-token)]
+    [:div.flex.items-center.gap-4
+     ;; We use hx-vals to send the CSRF token Biff expects
+     [:button.btn {:hx-post (str (:fragment/src live-config) "?op=inc")
+                   :hx-target "closest div"
+                   :hx-swap (:fragment/swap live-config)
+                   :hx-vals (str "{\"__anti_forgery_token\": \"" token "\"}")} "+"]
 
-(defn value
-  [ctx]
-  (extract-counter-value
-   (first (live.xtdb/q ctx (query)))))
+     [:span.text-2xl.font-mono n]
 
-(defn button-class
-  []
-  "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted")
+     [:button.btn {:hx-post (str (:fragment/src live-config) "?op=dec")
+                   :hx-target "closest div"
+                   :hx-swap (:fragment/swap live-config)
+                   :hx-vals (str "{\"__anti_forgery_token\": \"" token "\"}")} "-"]]))
 
-(defn counter-button
-  [ctx {:keys [to label]}]
-  (live/post-button
-   ctx
-   {:to to
-    :target (:fragment/id live-config)
-    :swap (:fragment/swap live-config)
-    :label label
-    :button-attrs {:class (button-class)}}))
-
-(defn fragment
-  [ctx]
-  (let [n (value ctx)]
-    [:section {:class "mx-auto max-w-3xl py-6"}
-     [:div {:class "rounded-2xl border border-border bg-card text-card-foreground shadow-sm p-6 space-y-5"}
-      [:div {:class "space-y-2 text-center"}
-       [:div {:class "font-body text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground"}
-        "Live Demo"]
-       [:h2 {:class "font-heading leading-heading tracking-heading text-2xl font-bold"}
-        "Shared Counter"]
-       [:p {:class "font-body leading-body text-muted-foreground text-base-theme"}
-        "All signed-in users see and change the same persisted value."]]
-
-      [:div {:class "flex items-center justify-center gap-4"}
-       (counter-button
-        ctx
-        {:to "/app/demo/shared-counter/decrement"
-         :label "−"})
-
-       [:div {:class "min-w-28 rounded-xl bg-muted px-6 py-4 text-center"}
-        [:div {:class "font-body text-xs uppercase tracking-[0.16em] text-muted-foreground"}
-         "Value"]
-        [:div {:class "font-heading text-3xl font-bold"}
-         n]]
-
-       (counter-button
-        ctx
-        {:to "/app/demo/shared-counter/increment"
-         :label "+"})]
-
-      [:p {:class "text-center font-body text-sm text-muted-foreground"}
-       "Updates are persisted and pushed live to all viewers."]]]))
-
-(defn section
-  []
-  (live/fragment-panel live-config))
-
-(defn increment!
-  [ctx]
-  (let [new-value (inc (value ctx))
-        live-ctx  (dissoc ctx :biff/conn)]
-    (live.xtdb/put-and-publish!
-     live-ctx
-     {:table :demo_counters
-      :doc {:xt/id counter-id
-            :demo/value new-value}
-      :changed {:entity/type :demo-counter
-                :entity/id counter-id
-                :change/kind :updated}
-      :data {:reason :increment}})
-    (fragment live-ctx)))
-
-(defn decrement!
-  [ctx]
-  (let [new-value (dec (value ctx))
-        live-ctx  (dissoc ctx :biff/conn)]
-    (live.xtdb/put-and-publish!
-     live-ctx
-     {:table :demo_counters
-      :doc {:xt/id counter-id
-            :demo/value new-value}
-      :changed {:entity/type :demo-counter
-                :entity/id counter-id
-                :change/kind :updated}
-      :data {:reason :decrement}})
-    (fragment live-ctx)))
+;; 5. The Main Page Section
+(defn section [ctx]
+  (live/fragment-panel ctx live-config))
