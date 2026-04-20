@@ -5,35 +5,47 @@
 
 (def counter-id "global-shared-counter")
 
-(defn subscription []
-  "shared-counter")
+(def live-config
+  {:subscription/token "shared-counter"
+   :entry [:demo-counter counter-id]
+   :fragment/id "shared-counter-fragment"
+   :fragment/src "/app/demo/shared-counter/fragment"
+   :fragment/swap "innerHTML"})
 
-(defn stream-url []
-  "/app/gesso/live/stream?subscription=shared-counter")
-
-(defn query []
+(defn query
+  []
   ["SELECT _id, demo$value
     FROM demo_counters
     WHERE _id = ?"
    counter-id])
 
-(defn row
-  [ctx]
-  (or (first (live.xtdb/q ctx (query)))
-      {:xt/id counter-id
-       :demo$value 0}))
+(defn extract-counter-value
+  [row]
+  (or (:demo$value row)
+      0))
 
 (defn value
   [ctx]
-  (let [r (row ctx)]
-    (or (:demo$value r)
-        (:demo/value r)
-        0)))
+  (extract-counter-value
+   (first (live.xtdb/q ctx (query)))))
+
+(defn button-class
+  []
+  "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted")
+
+(defn counter-button
+  [ctx {:keys [to label]}]
+  (live/post-button
+   ctx
+   {:to to
+    :target (:fragment/id live-config)
+    :swap (:fragment/swap live-config)
+    :label label
+    :button-attrs {:class (button-class)}}))
 
 (defn fragment
   [ctx]
-  (let [n (value ctx)
-        anti-forgery-token (:anti-forgery-token ctx)]
+  (let [n (value ctx)]
     [:section {:class "mx-auto max-w-3xl py-6"}
      [:div {:class "rounded-2xl border border-border bg-card text-card-foreground shadow-sm p-6 space-y-5"}
       [:div {:class "space-y-2 text-center"}
@@ -45,17 +57,10 @@
         "All signed-in users see and change the same persisted value."]]
 
       [:div {:class "flex items-center justify-center gap-4"}
-       [:form {:method "post"
-               :action "/app/demo/shared-counter/decrement"
-               :hx-post "/app/demo/shared-counter/decrement"
-               :hx-target "#shared-counter-fragment"
-               :hx-swap "innerHTML"}
-        [:input {:type "hidden"
-                 :name "__anti-forgery-token"
-                 :value anti-forgery-token}]
-        [:button {:type "submit"
-                  :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
-         "−"]]
+       (counter-button
+        ctx
+        {:to "/app/demo/shared-counter/decrement"
+         :label "−"})
 
        [:div {:class "min-w-28 rounded-xl bg-muted px-6 py-4 text-center"}
         [:div {:class "font-body text-xs uppercase tracking-[0.16em] text-muted-foreground"}
@@ -63,65 +68,48 @@
         [:div {:class "font-heading text-3xl font-bold"}
          n]]
 
-       [:form {:method "post"
-               :action "/app/demo/shared-counter/increment"
-               :hx-post "/app/demo/shared-counter/increment"
-               :hx-target "#shared-counter-fragment"
-               :hx-swap "innerHTML"}
-        [:input {:type "hidden"
-                 :name "__anti-forgery-token"
-                 :value anti-forgery-token}]
-        [:button {:type "submit"
-                  :class "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted"}
-         "+"]]]
+       (counter-button
+        ctx
+        {:to "/app/demo/shared-counter/increment"
+         :label "+"})]
 
       [:p {:class "text-center font-body text-sm text-muted-foreground"}
        "Updates are persisted and pushed live to all viewers."]]]))
 
 (defn section
   []
-  (live/fragment
-   {:id "shared-counter-fragment"
-    :src "/app/demo/shared-counter/fragment"
-    :stream-url (stream-url)
-    :swap "innerHTML"}))
-
-(defn fragment-handler
-  [ctx]
-  (fragment ctx))
-
-(defn- write-value!
-  [ctx new-value reason]
-  ;; 1. Submit the raw transaction directly to XTDB2
-  (live.xtdb/submit-tx-raw!
-   (live.xtdb/connectable-from-ctx ctx)
-   [[:put-docs :demo_counters
-     {:xt/id counter-id
-      :demo/value new-value}]])
-
-  ;; 2. Block until the database read catches up to the write.
-  ;; This prevents the async race condition where Client 2 receives the
-  ;; SSE ping and fetches before the database has indexed the transaction.
-  (loop [attempts 0]
-    (when (and (< attempts 20)
-               (not= new-value (value ctx)))
-      (Thread/sleep 50)
-      (recur (inc attempts))))
-
-  ;; 3. Now that the data is ready, notify the live bus
-  (live/publish-change!
-   ctx
-   {:changed {:entity/type :demo-counter
-              :entity/id counter-id
-              :change/kind :updated}
-    :data {:reason reason}}))
+  (live/fragment-panel live-config))
 
 (defn increment!
   [ctx]
-  (write-value! ctx (inc (value ctx)) :increment)
-  (fragment ctx))
+  (let [new-value (inc (value ctx))]
+    (live.xtdb/put-value-and-publish!
+     ctx
+     {:table :demo_counters
+      :doc {:xt/id counter-id
+            :demo/value new-value}
+      :query (query)
+      :extract-value extract-counter-value
+      :expected-value new-value
+      :changed {:entity/type :demo-counter
+                :entity/id counter-id
+                :change/kind :updated}
+      :data {:reason :increment}})
+    (fragment ctx)))
 
 (defn decrement!
   [ctx]
-  (write-value! ctx (dec (value ctx)) :decrement)
-  (fragment ctx))
+  (let [new-value (dec (value ctx))]
+    (live.xtdb/put-value-and-publish!
+     ctx
+     {:table :demo_counters
+      :doc {:xt/id counter-id
+            :demo/value new-value}
+      :query (query)
+      :extract-value extract-counter-value
+      :expected-value new-value
+      :changed {:entity/type :demo-counter
+                :entity/id counter-id
+                :change/kind :updated}
+      :data {:reason :decrement}})
+    (fragment ctx)))

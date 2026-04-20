@@ -13,7 +13,7 @@
    [gesso.core :as gs :refer :all ]
    [gessotest.page-examples :refer :all]
    [gessotest.bars-demo :refer [bars-demo-page]]
-   [gessotest.live :as live]
+   [gesso.live.app :as live.app]
    [gessotest.shared-counter :as shared-counter]
    ))
 
@@ -998,16 +998,20 @@
    :headers {"content-type" "application/json"}
    :body params})
 
+(def live-system
+  (live.app/simple-system
+   {:configs [shared-counter/live-config]}))
+
 (def module
   {:static {"/about/" about-page}
    :routes [["/app" {:middleware [mid/wrap-signed-in
-                                  live/wrap-live-bus]}
+                                  (:middleware live-system)]}
              ["" {:get app}]
              ["/set-foo" {:post set-foo}]
              ["/set-bar" {:post set-bar}]
              ["/chat" {:get ws-handler}]
-             ["/gesso/live/stream" {:get live/sse-handler}]
-             ["/demo/shared-counter/fragment" {:get shared-counter/fragment-handler}]
+             ["/gesso/live/stream" {:get (:sse-handler live-system)}]
+             ["/demo/shared-counter/fragment" {:get shared-counter/fragment}]
              ["/demo/shared-counter/increment" {:post shared-counter/increment!}]
              ["/demo/shared-counter/decrement" {:post shared-counter/decrement!}]
 
