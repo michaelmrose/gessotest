@@ -21,7 +21,7 @@
    :fragment/swap "innerHTML"})
 
 (defn button-class []
-  "inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background text-xl font-semibold hover:bg-muted")
+  "inline-flex h-11 w-11 items-center justify-center radius-xl border-theme font-heading text-xl-theme weight-semibold-theme")
 
 (defn counter-button [ctx {:keys [to label]}]
   (live/post-button ctx
@@ -29,31 +29,47 @@
     :target (:fragment/id live-config)
     :swap (:fragment/swap live-config)
     :label label
-    :button-attrs {:class (button-class)}}))
+    :button-attrs {:class (button-class)
+                   :style {:border-style "solid"
+                           :border-color "var(--border)"
+                           :background "var(--background)"
+                           :color "var(--foreground)"}}}))
 
 ;; 2. The UI Fragment
 (defn fragment [ctx]
   (let [n (live-read ctx counter)]
     [:section {:class "mx-auto max-w-3xl py-6"}
-     [:div {:class "rounded-2xl border border-border bg-card text-card-foreground shadow-sm p-6 space-y-5"}
-      [:div {:class "space-y-2 text-center"}
-       [:div {:class "font-body text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground"}
+     [:div {:class "radius-xl border-theme pad-card content-stack-theme shadow-sm"
+            :style {:border-style "solid"
+                    :border-color "var(--border)"
+                    :background "var(--card)"
+                    :color "var(--card-foreground)"}}
+
+      [:div {:class "title-stack-theme"
+             :style {:text-align "center"}}
+       [:div {:class "font-body text-sm-theme weight-medium-theme tracking-wide-theme uppercase"
+              :style {:color "var(--muted-foreground)"}}
         "Live Demo (Simple)"]
-       [:h2 {:class "font-heading leading-heading tracking-heading text-2xl font-bold"}
+       [:h2 {:class "font-heading leading-heading tracking-heading text-2xl-theme weight-bold-theme"}
         "Shared Counter"]
-       [:p {:class "font-body leading-body text-muted-foreground text-base-theme"}
+       [:p {:class "font-body leading-body text-base-theme"
+            :style {:color "var(--muted-foreground)"}}
         "Powered by ->synced and live-swap!."]]
 
       [:div {:class "flex items-center justify-center gap-4"}
        (counter-button ctx {:to "/app/demo/simple-shared-counter/decrement" :label "−"})
 
-       [:div {:class "min-w-28 rounded-xl bg-muted px-6 py-4 text-center"}
-        [:div {:class "font-body text-xs uppercase tracking-[0.16em] text-muted-foreground"} "Value"]
-        [:div {:class "font-heading text-3xl font-bold"} n]]
+       [:div {:class "min-w-28 radius-xl px-6 py-4 text-center"
+              :style {:background "var(--muted)"}}
+        [:div {:class "font-body text-xs-theme tracking-wide-theme uppercase"
+               :style {:color "var(--muted-foreground)"}}
+         "Value"]
+        [:div {:class "font-heading text-3xl-theme weight-bold-theme"} n]]
 
        (counter-button ctx {:to "/app/demo/simple-shared-counter/increment" :label "+"})]
 
-      [:p {:class "text-center font-body text-sm text-muted-foreground"}
+      [:p {:class "text-center font-body text-sm-theme leading-body"
+           :style {:color "var(--muted-foreground)"}}
        "Updates are persisted and pushed live to all viewers."]]]))
 
 ;; 3. The Injection Point
