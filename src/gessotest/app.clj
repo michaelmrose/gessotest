@@ -15,6 +15,7 @@
    [gessotest.bars-demo :refer [bars-demo-page]]
    [gesso.live.app :as live.app]
    [gessotest.shared-counter :as shared-counter]
+   [gessotest.simple-shared-counter :as simple-shared-counter]
    ))
 
 (defn- section-heading
@@ -899,6 +900,8 @@
     (toolbars-section)
     (pages-section)
     (shared-counter/section)
+    (simple-shared-counter/section )
+
     ]))
 
 (defn set-foo [{:keys [session params] :as ctx}]
@@ -1002,6 +1005,8 @@
   (live.app/simple-system
    {:configs [shared-counter/live-config]}))
 
+
+
 (def module
   {:static {"/about/" about-page}
    :routes [["/app" {:middleware [mid/wrap-signed-in
@@ -1011,9 +1016,16 @@
              ["/set-bar" {:post set-bar}]
              ["/chat" {:get ws-handler}]
              ["/gesso/live/stream" {:get (:sse-handler live-system)}]
+
+             ;; Original Counter
              ["/demo/shared-counter/fragment" {:get shared-counter/fragment}]
              ["/demo/shared-counter/increment" {:post shared-counter/increment!}]
              ["/demo/shared-counter/decrement" {:post shared-counter/decrement!}]
+
+             ;; Simple Counter
+             ["/demo/simple-shared-counter/fragment" {:get simple-shared-counter/fragment}]
+             ["/demo/simple-shared-counter/increment" {:post simple-shared-counter/increment!}]
+             ["/demo/simple-shared-counter/decrement" {:post simple-shared-counter/decrement!}]
 
              ["/pages" {}
               ["/focused" {:get page-focused}]

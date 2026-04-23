@@ -83,10 +83,9 @@
 
 (defn increment!
   [ctx]
-  (let [new-value (inc (value ctx))
-        live-ctx  (dissoc ctx :biff/conn)]
+  (let [new-value (inc (value ctx))]
     (live.xtdb/put-and-publish!
-     live-ctx
+     ctx
      {:table :demo_counters
       :doc {:xt/id counter-id
             :demo/value new-value}
@@ -94,14 +93,13 @@
                 :entity/id counter-id
                 :change/kind :updated}
       :data {:reason :increment}})
-    (fragment live-ctx)))
+    (fragment ctx)))
 
 (defn decrement!
   [ctx]
-  (let [new-value (dec (value ctx))
-        live-ctx  (dissoc ctx :biff/conn)]
+  (let [new-value (dec (value ctx))]
     (live.xtdb/put-and-publish!
-     live-ctx
+     ctx
      {:table :demo_counters
       :doc {:xt/id counter-id
             :demo/value new-value}
@@ -109,4 +107,4 @@
                 :entity/id counter-id
                 :change/kind :updated}
       :data {:reason :decrement}})
-    (fragment live-ctx)))
+    (fragment ctx)))
